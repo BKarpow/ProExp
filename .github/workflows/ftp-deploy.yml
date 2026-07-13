@@ -1,5 +1,6 @@
 name: Deploy Website via FTP
 
+# Запускаємося при кожному пуші в main (щоб деплоїти свіжий код)
 on:
   push:
     branches:
@@ -7,7 +8,7 @@ on:
 
 jobs:
   web-deploy:
-    name: 🎉 Generate Vendor & Deploy
+    name: 🎉 Smart Build & Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -17,24 +18,47 @@ jobs:
       with:
         fetch-depth: 0
 
-    # 2. Налаштовуємо PHP для Composer
+    # 2. Налаштовуємо PHP
     - name: 🐘 Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.3' # Вкажи версію PHP свого проєкту
+        php-version: '8.3' # Зміни на 8.2, якщо обрав варіант з --ignore-platform-reqs
         extensions: mbstring, xml, ctype, iconv, mysql, zip
 
-    # 3. Встановлюємо залежності Composer (папку vendor)
+    # 3. Перевіряємо кеш папки vendor
+    - name: 💾 Cache Composer dependencies
+      id: composer-cache
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        # Ключ кешу зав'язаний на вміст файлу composer.json
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    # 4. Встановлюємо залежності Composer (ТІЛЬКИ якщо кеш не знайдено або змінився composer.json)
     - name: 📦 Install Composer dependencies
+      if: steps.composer-cache.outputs.cache-hit != 'true'
       run: |
         composer install --no-dev --optimize-autoloader --no-progress --no-interaction
 
-    # 4. Деплоїмо все на хостинг
-    - name: 🚀 Upload files via FTP
+    # 5. КРОК А: Основний деплой всього проєкту на FTP (крім node_modules за допомогою .gitftpignore)
+    - name: 🚀 Upload whole project via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        # server-dir: /public_html/ # Розкоментуй, якщо потрібно вказати конкретну папку
+        # Тут за замовчуванням заливаємо в корінь, куди пускає твій FTP користувач.
+        # Якщо треба основний проєкт теж у якусь підпапку, розкоментуй і вкажи її:
         server-dir: /core2/prm/
+
+    # 6. КРОК Б: Додаткове копіювання з папки public/build в /www/productexp.pp.ua/
+    - name: 📂 Copy local public/build to target folder on FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: public/build/              # Джерело на GitHub (звідки беремо)
+        server-dir: /www/productexp.pp.ua/test1/     # Ціль на FTP (куди копіюємо)
