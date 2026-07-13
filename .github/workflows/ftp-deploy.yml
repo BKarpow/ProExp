@@ -1,6 +1,5 @@
 name: Deploy Website via FTP
 
-# Тригер: запускати екшен при кожному пуші в гілку main (або master)
 on:
   push:
     branches:
@@ -8,17 +7,41 @@ on:
 
 jobs:
   web-deploy:
-    name: 🎉 Deploy
+    name: 🎉 Build & Deploy
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Копіюємо код репозиторію на віртуальну машину GitHub
+    # 1. Отримуємо код з репозиторію
     - name: 🚚 Get latest code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # Потрібно для того, щоб екшен міг порівняти коміти і знайти лише змінені файли
+        fetch-depth: 0
 
-    # 2. Завантажуємо файли на FTP
+    # 2. Налаштовуємо PHP для Composer
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2' # Вкажіть версію PHP вашого проєкту (наприклад, 8.1, 8.2, 8.3)
+        extensions: mbstring, xml, ctype, iconv, mysql, zip # Базові розширення для Laravel
+
+    # 3. Встановлюємо залежності Composer (папку vendor)
+    - name: 📦 Install Composer dependencies
+      run: |
+        composer install --no-dev --optimize-autoloader --no-progress --no-interaction
+
+    # 4. Налаштовуємо Node.js для npm
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # Можна змінити на вашу версію Node (18, 20, 22)
+
+    # 5. Встановлюємо npm-модулі та збираємо фронтенд (Vite / Mix)
+    - name: 🛠️ Install NPM packages & Build assets
+      run: |
+        npm ci
+        npm run build # Ця команда згенерує готові стилі та скрипти в папку public/build
+
+    # 6. Завантажуємо ВСЕ (включаючи vendor та node_modules) на FTP
     - name: 🚀 Upload files via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
