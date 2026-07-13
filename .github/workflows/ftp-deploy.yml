@@ -21,7 +21,7 @@ jobs:
     - name: 🐘 Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2' # Вкажи версію PHP свого проєкту
+        php-version: '8.3' # Вкажи версію PHP свого проєкту
         extensions: mbstring, xml, ctype, iconv, mysql, zip
 
     # 3. Встановлюємо залежності Composer (папку vendor)
