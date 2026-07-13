@@ -25,4 +25,4 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /core2/prm # Якщо потрібно завантажити в конкретну папку на сервері, розкоментуйте цей рядок
+        server-dir: /core2/prm/
