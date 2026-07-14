@@ -55,7 +55,7 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /core2/prm/
+        server-dir: /core/prm/
 
     # 7. КРОК Б: Копіювання з папки public/build в /www/productexp.pp.ua/
     - name: 📂 Copy local public/build to target folder on FTP
@@ -65,4 +65,4 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: public/build/
-        server-dir: /www/productexp.pp.ua/test1/
+        server-dir: /www/productexp.pp.ua/build/

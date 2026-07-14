@@ -111,4 +111,9 @@ class DateProduct extends Model
     {
         return $this->saveBarcodeToFile($this->product->barcode);
     }
+
+    public function pathScreens()
+    {
+        return $this->hasMany(ScreenDateProduct::class, 'id', 'date_id' );
+    }
 }
