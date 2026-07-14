@@ -24,29 +24,29 @@ jobs:
         php-version: '8.3' # Зміни на 8.2, якщо потрібно
         extensions: mbstring, xml, ctype, iconv, mysql, zip
 
-    # 3. Перевіряємо кеш папки vendor
-    - name: 💾 Cache Composer dependencies
-      id: composer-cache
-      uses: actions/cache@v4
-      with:
-        path: vendor
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
+    # # 3. Перевіряємо кеш папки vendor
+    # - name: 💾 Cache Composer dependencies
+    #   id: composer-cache
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: vendor
+    #     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-composer-
 
-    # 4. Встановлюємо залежності (ТІЛЬКИ якщо composer.json змінився)
-    - name: 📦 Install Composer dependencies
-      if: steps.composer-cache.outputs.cache-hit != 'true'
-      run: |
-        composer install --no-dev --optimize-autoloader --no-progress --no-interaction
+    # # 4. Встановлюємо залежності (ТІЛЬКИ якщо composer.json змінився)
+    # - name: 📦 Install Composer dependencies
+    #   if: steps.composer-cache.outputs.cache-hit != 'true'
+    #   run: |
+    #     composer install --no-dev --optimize-autoloader --no-progress --no-interaction
 
-    # 5. Динамічне ігнорування vendor (ТІЛЬКИ якщо composer.json НЕ змінювався)
-    # Ми просто дописуємо "vendor/" у .gitftpignore в процесі збірки
-    - name: 🚫 Skip vendor upload if no changes
-      if: steps.composer-cache.outputs.cache-hit == 'true'
-      run: |
-        echo "vendor/" >> .gitftpignore
-        echo "Кеш спрацював! Папку vendor додано в ігнор для FTP деплою."
+    # # 5. Динамічне ігнорування vendor (ТІЛЬКИ якщо composer.json НЕ змінювався)
+    # # Ми просто дописуємо "vendor/" у .gitftpignore в процесі збірки
+    # - name: 🚫 Skip vendor upload if no changes
+    #   if: steps.composer-cache.outputs.cache-hit == 'true'
+    #   run: |
+    #     echo "vendor/" >> .gitftpignore
+    #     echo "Кеш спрацював! Папку vendor додано в ігнор для FTP деплою."
 
     # 6. КРОК А: Основний деплой всього проєкту на FTP (крім node_modules та, можливо, vendor)
     - name: 🚀 Upload whole project via FTP
