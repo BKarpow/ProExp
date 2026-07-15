@@ -116,4 +116,15 @@ class DateProduct extends Model
     {
         return $this->hasMany(ScreenDateProduct::class, 'id', 'date_id' );
     }
+
+    public function toDoDate()
+    {
+        return $this->hasOne(ToDoDate::class, 'id', 'date_id' );
+    }
+
+    public function isDone():bool
+    {
+
+        return (bool) $this->done;
+    }
 }

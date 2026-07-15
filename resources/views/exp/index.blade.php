@@ -50,6 +50,7 @@
                                                     </div>
                                                     <div class="mt-1">
                                                         До: {{$item->end->format('d.m.Y')}}
+
                                                     </div>
                                                     <!-- /.mt-1 -->
 

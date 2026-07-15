@@ -20,6 +20,11 @@
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-end">
+
+                            <a href="{{ route('date.todo') }}" class=" dropdown-item">
+                                ЧЕК ЛИСТ
+                            </a>
+
                             <a href="{{ route('date.index') }}" class=" dropdown-item">
                                 Терміни
                             </a>

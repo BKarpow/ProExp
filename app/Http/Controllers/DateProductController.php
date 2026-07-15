@@ -17,6 +17,7 @@ use App\Services\BarcodeHandle;
 use App\Http\Resources\SearchForBarcodeResource;
 use App\Models\NameProductUserAlias;
 use App\Models\ScreenDateProduct;
+use App\Http\Resources\DateProductResource;
 
 class DateProductController extends Controller
 {
@@ -293,5 +294,37 @@ class DateProductController extends Controller
             ->orderBy('end', 'asc')
             ->limit(15)->get(); // Повертає об'єкт LengthAwarePaginator
         return SearchForBarcodeResource::collection($expiries);
+    }
+
+
+
+
+    public function setDone(DateProduct $dateProduct)
+    {
+        $this->authorize('delete', $dateProduct);
+        $dateProduct->done = true;
+        $dateProduct->save();
+
+        return response()->json([
+            'success' => true,
+            'date_id' => $dateProduct->id
+        ]);
+    }
+
+    public function getToDoDateList()
+    {
+
+        $p = DateProduct::where([
+            ['group_id', '=', Auth::user()->configDefaultGroup()],
+            ['done', '=', false],
+            ['end', '>=', now()->format('Y.m.d')],
+            ['end', '<=', now()->addDays((int)Auth::user()->configDefaultDaysex())->format('Y.m.d')],
+        ])->orderBy('end', 'asc')->get();
+        return DateProductResource::collection($p);
+    }
+
+    public function showToDo()
+    {
+        return view('exp.todo');
     }
 }

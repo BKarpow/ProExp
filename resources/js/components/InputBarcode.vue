@@ -348,8 +348,8 @@ export default {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 200px;
-    height: 100px;
-    border: 2px solid #00ff00;
+    height: 150px;
+    border: 4px solid #00ff00;
     border-radius: 8px;
     box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
 }

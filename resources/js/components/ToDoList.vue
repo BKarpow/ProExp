@@ -19,23 +19,11 @@
             </button>
           </div>
         </div>
-        <h1 class="title">To-Do</h1>
+        <h1 class="title">Чек лист</h1>
         <div class="progress-bar">
           <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
         </div>
-        <div class="add-task mt-2">
-        <input
-          v-model="newTaskText"
-          type="text"
-          placeholder="Нова задача..."
-          @keydown.enter="addTask"
-        />
-        <button @click="addTask" :disabled="!newTaskText.trim()">
-          <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
+
       </header>
 
       <TransitionGroup name="task" tag="ul" class="task-list">
@@ -51,8 +39,8 @@
               <path d="M1 5L4.5 8.5L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <span class="task-text">{{ task.text }}</span>
-          <span class="task-tag" v-if="task.tag">{{ task.tag }}</span>
+          <span class="task-text">{{ task.name }} -> {{ task.expDays }}</span>
+          <span class="task-tag" v-if="task.end">{{ task.end }}</span>
         </li>
       </TransitionGroup>
 
@@ -88,6 +76,7 @@ export default {
   },
 
   computed: {
+
     isDark() {
       return this.internalTheme === 'dark'
     },
@@ -132,8 +121,19 @@ export default {
   },
 
   methods: {
+    loadList() {
+        axios.get(route('date.get.todo')).then(resp => {
+            this.tasks = resp.data.data;
+        }).catch(err => {
+            console.error(err);
+            this.tasks = [];
+        })
+    },
     toggleTask(task) {
-      task.done = !task.done
+      task.done = !task.done;
+      axios.get(route('date.set.done', {dateProduct: task.id})).then(resp => {
+        console.debug(reso);
+      })
       this.$emit('task-toggled', { ...task })
     },
 
@@ -150,6 +150,9 @@ export default {
       this.internalTheme = this.internalTheme === 'dark' ? 'light' : 'dark'
       this.$emit('theme-change', this.internalTheme)
     }
+  },
+  mounted() {
+    this.loadList();
   }
 }
 </script>
@@ -242,13 +245,13 @@ export default {
 .todo-wrapper {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+
   justify-content: center;
   background-color: var(--bg-page);
   background-image:
     radial-gradient(ellipse 60% 40% at 70% 20%, var(--bg-page-g1) 0%, transparent 60%),
     radial-gradient(ellipse 40% 60% at 20% 80%, var(--bg-page-g2) 0%, transparent 60%);
-  padding: 2rem;
+  padding: .5rem;
   font-family: 'Syne', sans-serif;
   transition: background-color 0.35s ease;
 }
@@ -258,11 +261,11 @@ export default {
    ══════════ */
 .todo-card {
   width: 100%;
-  max-width: 520px;
+max-width: 720px;
   background: var(--bg-card);
   border: 1px solid var(--border-card);
-  border-radius: 20px;
-  padding: 2rem;
+  border-radius: 8px;
+  padding: .5rem;
   box-shadow: var(--shadow-card);
   transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }

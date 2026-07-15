@@ -61,6 +61,21 @@ Route::get($prefixRoute.'/show/user/{user}', [DateProductController::class, 'use
 Route::post($prefixRoute.'/api/analyze-expiry', [ExpiryController::class, 'analyze'])
 ->name('date.analyze');
 
+//showToDo
+
+Route::get($prefixRoute.'/todo', [DateProductController::class, 'showToDo'])
+->name('date.todo');
+
+// setDone
+
+Route::get($prefixRoute.'/api/set/done/{dateProduct}', [DateProductController::class, 'setDone'])
+->name('date.set.done');
+
+// getToDoDateList
+
+Route::get($prefixRoute.'/api/get/todo/', [DateProductController::class, 'getToDoDateList'])
+->name('date.get.todo');
+
 $prefixRoute = null;
 $nameAlias = null;
 
