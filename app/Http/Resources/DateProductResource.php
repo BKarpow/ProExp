@@ -20,6 +20,7 @@ class DateProductResource extends JsonResource
             'done' => (bool)$this->done,
             'end' => $this->end->format('d.m.Y'),
             'expDays' => $this->days,
+            'markdown' => (bool)$this->markdown,
             'user' => $this->user->name,
         ];
     }

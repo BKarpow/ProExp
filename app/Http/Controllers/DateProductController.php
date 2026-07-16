@@ -301,8 +301,20 @@ class DateProductController extends Controller
 
     public function setDone(DateProduct $dateProduct)
     {
-        $this->authorize('delete', $dateProduct);
+        // $this->authorize('delete', $dateProduct);
         $dateProduct->done = true;
+        $dateProduct->save();
+
+        return response()->json([
+            'success' => true,
+            'date_id' => $dateProduct->id
+        ]);
+    }
+
+    public function setMarkdown(DateProduct $dateProduct)
+    {
+        // $this->authorize('delete', $dateProduct);
+        $dateProduct->markdown = true;
         $dateProduct->save();
 
         return response()->json([
@@ -319,6 +331,18 @@ class DateProductController extends Controller
             ['done', '=', false],
             ['end', '>=', now()->format('Y.m.d')],
             ['end', '<=', now()->addDays((int)Auth::user()->configDefaultDaysex())->format('Y.m.d')],
+        ])->orderBy('end', 'asc')->get();
+        return DateProductResource::collection($p);
+    }
+
+    public function getMarkdownDateList()
+    {
+
+        $p = DateProduct::where([
+            ['group_id', '=', Auth::user()->configDefaultGroup()],
+            ['markdown', '=', true],
+            ['end', '>=', now()->format('Y.m.d')],
+            // ['end', '<=', now()->addDays((int)Auth::user()->configDefaultDaysex())->format('Y.m.d')],
         ])->orderBy('end', 'asc')->get();
         return DateProductResource::collection($p);
     }

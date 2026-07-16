@@ -227,4 +227,104 @@ class ImageProductController extends Controller
     }
 
 
+    /**
+     * Розпізнати цінник на зображенні за допомогою Gemini 2.5 Flash.
+     */
+    public function detectNameProductAndBsrcode(Request $request): JsonResponse
+    {
+        // 1. Валідація: перевіряємо, чи завантажено файл і чи це картинка
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:4096', // ліміт 4МБ
+        ]);
+
+        // 2. Беремо файл та конвертуємо його в Base64
+        $imagePath = $request->file('image')->path();
+        $image = $request->file('image');
+        $path = $request->file('image')->store('screenDates', 'public');
+        $mimeType = $request->file('image')->getMimeType();
+        $base64Image = base64_encode(file_get_contents($imagePath));
+        $pid = $request->input('pid');
+            if ($pid && $p = Product::find($pid)) {
+                $i = new ImageProduct();
+                $i->product_id = $p->id;
+                $i->path = $path;
+                $i->save();
+            }
+
+        // 3. Отримуємо API ключ із конфігу
+        $apiKey = config('services.gemini.key');
+        if (!$apiKey) {
+            return response()->json(['error' => 'Gemini API Key не налаштовано в .env'], 500);
+        }
+
+        // Використовуємо швидку та безкоштовну модель gemini-2.5-flash
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}";
+
+        // Промт (інструкція для ШІ)
+        $prompt = "Уважно подивись на це фото цінника. Знайди назву товару та штрихкод " .
+
+                  "Поверни відповідь СУВОРО у форматі JSON: {\"name\": \"Product name\", \"barcode\": ...}. " .
+                  "Якщо назву продукту або штрих код розпізнати неможливо або її немає, поверни: {\"name\": null, \"barcode\": null}. " .
+                  "Не пиши нічого, крім JSON. Без зайвих слів, маркдауну та оформлення ```json.";
+
+        try {
+            // 4. Робимо POST-запит за структурою Google API
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->timeout(15)->post($url, [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $prompt],
+                            [
+                                'inlineData' => [
+                                    'mimeType' => $mimeType,
+                                    'data'     => $base64Image
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'error' => 'Помилка запиту до Gemini API',
+                    'details' => $response->body()
+                ], $response->status());
+            }
+
+            // 5. Дістаємо текст відповіді ШІ
+            $aiResponseText = $response->json('candidates.0.content.parts.0.text');
+
+            // Оскільки ми просили суворий JSON, очищаємо пробіли та декодуємо його
+            $cleanedJson = trim($aiResponseText);
+            $resultData = json_decode($cleanedJson, true);
+
+            // Якщо ШІ повернув не валідний JSON (буває рідко), повертаємо як текст
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    'success' => false,
+                    'raw_response' => $aiResponseText,
+                    'message' => 'ШІ повернув дані у неформатованому вигляді'
+                ]);
+            }
+
+
+            return response()->json([
+                'success' => true,
+                'data' => $resultData,
+                'pathScreen' => $path,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Внутрішня помилка при розпізнаванні зображення',
+                'details' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
 }

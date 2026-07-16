@@ -32,14 +32,20 @@
           :key="task.id"
           class="task-item"
           :class="{ completed: task.done }"
-          @click="toggleTask(task)"
+
         >
-          <div class="checkbox" :class="{ checked: task.done }">
+          <div @click="toggleTask(task)" class="checkbox" :class="{ checked: task.done }">
             <svg v-if="task.done" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M1 5L4.5 8.5L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <span class="task-text">{{ task.name }} -> {{ task.expDays }}</span>
+          <span class="task-text">{{ task.name }} &nbsp;
+            <span class="exp-days">{{ task.expDays }} дні(в)</span>
+
+             </span>
+             <button type="button" class="btn btn-outline-dark p-1">
+                    Перевести на уцінку
+                </button>
           <span class="task-tag" v-if="task.end">{{ task.end }}</span>
         </li>
       </TransitionGroup>
@@ -61,7 +67,7 @@ export default {
     // 'light' | 'dark'  — за замовчуванням світла тема
     theme: {
       type: String,
-      default: 'light',
+      default: 'dark',
       validator: (v) => ['light', 'dark'].includes(v)
     }
   },
@@ -232,6 +238,13 @@ export default {
   --progress-bg:      #222222;
   --shadow-card:      0 0 0 1px rgba(255,255,255,0.03), 0 32px 64px rgba(0,0,0,0.6);
   --checkbox-border:  #333333;
+}
+
+.exp-days {
+    padding: .5rem;
+    background: var(--accent-to);
+    color: var(--border-tag);
+    border-radius: 4px;
 }
 
 /* ══════════
