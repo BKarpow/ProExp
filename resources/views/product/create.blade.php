@@ -13,10 +13,11 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col-md-6">
+                                <detect-prices></detect-prices>
                                     <form action="{{route('product.create')}}" method="POST">
                                         @csrf
                                         <div class="mb-2">
-                                            <create-product></create-product>
+
 
                                                 @error('barcode')
                                                     <div class="mt-1 alert alert-danger">

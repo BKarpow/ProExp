@@ -11,7 +11,7 @@
     "isDynamicEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-CWSgI9Nj.js",
+    "file": "assets/app-Cfmc6Bf0.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -20,7 +20,7 @@
       "_index-DkgChCA8.js"
     ],
     "css": [
-      "assets/app-B70Xhq9V.css"
+      "assets/app-AdvLb6W3.css"
     ]
   },
   "resources/sass/app.scss": {

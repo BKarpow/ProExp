@@ -240,16 +240,9 @@ class ImageProductController extends Controller
         // 2. Беремо файл та конвертуємо його в Base64
         $imagePath = $request->file('image')->path();
         $image = $request->file('image');
-        $path = $request->file('image')->store('screenDates', 'public');
+        $path = $request->file('image')->store('pricesMark', 'public');
         $mimeType = $request->file('image')->getMimeType();
         $base64Image = base64_encode(file_get_contents($imagePath));
-        $pid = $request->input('pid');
-            if ($pid && $p = Product::find($pid)) {
-                $i = new ImageProduct();
-                $i->product_id = $p->id;
-                $i->path = $path;
-                $i->save();
-            }
 
         // 3. Отримуємо API ключ із конфігу
         $apiKey = config('services.gemini.key');
@@ -263,7 +256,8 @@ class ImageProductController extends Controller
         // Промт (інструкція для ШІ)
         $prompt = "Уважно подивись на це фото цінника. Знайди назву товару та штрихкод " .
 
-                  "Поверни відповідь СУВОРО у форматі JSON: {\"name\": \"Product name\", \"barcode\": ...}. " .
+                "Використовуй прапорець success як індекатор того що ти все зміг розібрати на фото ".
+                "Поверни відповідь СУВОРО у форматі JSON: {\"success\": \"bool\", \"name\": \"Product name\", \"barcode\": ...}. " .
                   "Якщо назву продукту або штрих код розпізнати неможливо або її немає, поверни: {\"name\": null, \"barcode\": null}. " .
                   "Не пиши нічого, крім JSON. Без зайвих слів, маркдауну та оформлення ```json.";
 
@@ -309,10 +303,18 @@ class ImageProductController extends Controller
                     'message' => 'ШІ повернув дані у неформатованому вигляді'
                 ]);
             }
+            $p = null;
+            if ($resultData['success']) {
+                $p = new Product();
+                $p->name = $resultData['name'];
+                $p->barcode = $resultData['barcode'];
+                $p->save();
+            }
 
 
             return response()->json([
-                'success' => true,
+                'success' => $resultData['success'],
+                'createdrProduct' => (bool)$p,
                 'data' => $resultData,
                 'pathScreen' => $path,
             ]);

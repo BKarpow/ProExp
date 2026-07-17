@@ -60,6 +60,7 @@ import InputPassword from './components/InputPassword.vue';
 import ToDoList from './components/ToDoList.vue';
 import ExpiryDateScanner from './components/ExpiryDateScanner.vue';
 import DetectExp from './components/DetectExp.vue';
+import DetectPrices from './components/DetectPrices.vue';
 app.component('delete-btn', DeleteButton);
 app.component('input-date', InputDate);
 app.component('example-component', ExampleComponent);
@@ -81,6 +82,7 @@ app.component("p-input", InputPassword);
 app.component("todo", ToDoList );
 app.component("date-scaner", ExpiryDateScanner);
 app.component("detect-exp", DetectExp);
+app.component("detect-prices", DetectPrices);
 
 /**
  * The following block of code may be used to automatically register your

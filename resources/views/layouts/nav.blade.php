@@ -25,6 +25,10 @@
                                 ЧЕК ЛИСТ
                             </a>
 
+                            <a href="{{ route('product.create') }}" class=" dropdown-item">
+                                Додати продукт
+                            </a>
+
                             <a href="{{ route('date.index') }}" class=" dropdown-item">
                                 Терміни
                             </a>

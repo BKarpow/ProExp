@@ -40,10 +40,11 @@
             </svg>
           </div>
           <span class="task-text">{{ task.name }} &nbsp;
-            <span class="exp-days">{{ task.expDays }} дні(в)</span>
+
 
              </span>
-             <button type="button" class="btn btn-outline-dark p-1">
+             <span class="exp-days">{{ task.expDays }} дні(в)</span>
+             <button type="button" class="btn btn-outline-primary p-1">
                     Перевести на уцінку
                 </button>
           <span class="task-tag" v-if="task.end">{{ task.end }}</span>
@@ -372,6 +373,7 @@ max-width: 720px;
 
 .task-item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.875rem;
   padding: 0.875rem 1rem;

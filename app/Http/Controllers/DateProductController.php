@@ -302,7 +302,7 @@ class DateProductController extends Controller
     public function setDone(DateProduct $dateProduct)
     {
         // $this->authorize('delete', $dateProduct);
-        $dateProduct->done = true;
+        $dateProduct->done = !(bool) $dateProduct->done;
         $dateProduct->save();
 
         return response()->json([

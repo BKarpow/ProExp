@@ -33,5 +33,8 @@ Route::post($prefixRoute.'/getname', [ProductController::class, 'getProductName'
 Route::post($prefixRoute.'/detect/exp', [ImageProductController::class, 'detectExpiryDate'])
 ->middleware('throttle:5,1')->name('detect.exp');
 
+Route::post($prefixRoute.'/detect/prices', [ImageProductController::class, 'detectNameProductAndBsrcode'])
+->middleware('throttle:5,1')->name('detect.prices');
+
 $prefixRoute = null;
 
