@@ -83,7 +83,6 @@ class ImageProductController extends Controller
             'existsImage' => (bool)$product,
             'urlImage' => (!$product) ? asset('storage/products/no-image.png') : $product->mainImg()
         ]);
-
     }
 
 
@@ -118,7 +117,6 @@ class ImageProductController extends Controller
                 'file_name' => $fileName,
                 'message' => 'Фото успішно завантажено'
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -145,12 +143,12 @@ class ImageProductController extends Controller
         $mimeType = $request->file('image')->getMimeType();
         $base64Image = base64_encode(file_get_contents($imagePath));
         $pid = $request->input('pid');
-            if ($pid && $p = Product::find($pid)) {
-                $i = new ImageProduct();
-                $i->product_id = $p->id;
-                $i->path = $path;
-                $i->save();
-            }
+        if ($pid && $p = Product::find($pid)) {
+            $i = new ImageProduct();
+            $i->product_id = $p->id;
+            $i->path = $path;
+            $i->save();
+        }
 
         // 3. Отримуємо API ключ із конфігу
         $apiKey = config('services.gemini.key');
@@ -163,10 +161,10 @@ class ImageProductController extends Controller
 
         // Промт (інструкція для ШІ)
         $prompt = "Уважно подивись на це фото пакування продукту. Знайди термін придатності " .
-                  "(це може бути кінцева дата, або дата виробництва + строк зберігання). " .
-                  "Поверни відповідь СУВОРО у форматі JSON: {\"expiry_date\": \"DD.MM.YY\"}. " .
-                  "Якщо дату розпізнати неможливо або її немає, поверни: {\"expiry_date\": null}. " .
-                  "Не пиши нічого, крім JSON. Без зайвих слів, маркдауну та оформлення ```json.";
+            "(це може бути кінцева дата, або дата виробництва + строк зберігання). " .
+            "Поверни відповідь СУВОРО у форматі JSON: {\"expiry_date\": \"DD.MM.YY\"}. " .
+            "Якщо дату розпізнати неможливо або її немає, поверни: {\"expiry_date\": null}. " .
+            "Не пиши нічого, крім JSON. Без зайвих слів, маркдауну та оформлення ```json.";
 
         try {
             // 4. Робимо POST-запит за структурою Google API
@@ -217,7 +215,6 @@ class ImageProductController extends Controller
                 'data' => $resultData,
                 'pathScreen' => $path,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Внутрішня помилка при розпізнаванні зображення',
@@ -256,10 +253,10 @@ class ImageProductController extends Controller
         // Промт (інструкція для ШІ)
         $prompt = "Уважно подивись на це фото цінника. Знайди назву товару та штрихкод " .
 
-                "Використовуй прапорець success як індекатор того що ти все зміг розібрати на фото ".
-                "Поверни відповідь СУВОРО у форматі JSON: {\"success\": \"bool\", \"name\": \"Product name\", \"barcode\": ...}. " .
-                  "Якщо назву продукту або штрих код розпізнати неможливо або її немає, поверни: {\"name\": null, \"barcode\": null}. " .
-                  "Не пиши нічого, крім JSON. Без зайвих слів, маркдауну та оформлення ```json.";
+            "Використовуй прапорець success як індекатор того що ти все зміг розібрати на фото " .
+            "Поверни відповідь СУВОРО у форматі JSON: {\"success\": \"bool\", \"name\": \"Product name\", \"barcode\": ...}. " .
+            "Якщо назву продукту або штрих код розпізнати неможливо або її немає, поверни: {\"name\": null, \"barcode\": null}. " .
+            "Не пиши нічого, крім JSON. Без зайвих слів, маркдауну та оформлення ```json.";
 
         try {
             // 4. Робимо POST-запит за структурою Google API
@@ -305,20 +302,21 @@ class ImageProductController extends Controller
             }
             $p = null;
             if ($resultData['success']) {
-                $p = new Product();
-                $p->name = $resultData['name'];
-                $p->barcode = $resultData['barcode'];
-                $p->save();
+                Product::updateOrCreate([
+                    'barcode' => $resultData['barcode']
+                ], [
+                    'name' => $resultData['name'],
+                    'barcode' => $resultData['barcode']
+                ]);
             }
 
 
             return response()->json([
                 'success' => $resultData['success'],
-                'createdrProduct' => (bool)$p,
+                // 'createdrProduct' => (bool)$p,
                 'data' => $resultData,
                 'pathScreen' => $path,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Внутрішня помилка при розпізнаванні зображення',
@@ -326,7 +324,4 @@ class ImageProductController extends Controller
             ], 500);
         }
     }
-
-
-
 }

@@ -329,6 +329,7 @@ class DateProductController extends Controller
         $p = DateProduct::where([
             ['group_id', '=', Auth::user()->configDefaultGroup()],
             ['done', '=', false],
+            ['markdown', '=', false],
             ['end', '>=', now()->format('Y.m.d')],
             ['end', '<=', now()->addDays((int)Auth::user()->configDefaultDaysex())->format('Y.m.d')],
         ])->orderBy('end', 'asc')->get();
@@ -341,6 +342,7 @@ class DateProductController extends Controller
         $p = DateProduct::where([
             ['group_id', '=', Auth::user()->configDefaultGroup()],
             ['markdown', '=', true],
+            ['done', '=', false],
             ['end', '>=', now()->format('Y.m.d')],
             // ['end', '<=', now()->addDays((int)Auth::user()->configDefaultDaysex())->format('Y.m.d')],
         ])->orderBy('end', 'asc')->get();

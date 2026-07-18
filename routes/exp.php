@@ -76,6 +76,16 @@ Route::get($prefixRoute.'/api/set/done/{dateProduct}', [DateProductController::c
 Route::get($prefixRoute.'/api/get/todo/', [DateProductController::class, 'getToDoDateList'])
 ->name('date.get.todo');
 
+// setMarkdown
+
+Route::get($prefixRoute.'/api/set/mark/{dateProduct}', [DateProductController::class, 'setMarkdown'])
+->name('date.set.markdown');
+
+//getMarkdownDateList
+
+Route::get($prefixRoute.'/api/get/mark/', [DateProductController::class, 'getMarkdownDateList'])
+->name('date.get.markdown');
+
 $prefixRoute = null;
 $nameAlias = null;
 

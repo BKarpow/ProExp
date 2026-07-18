@@ -26,7 +26,7 @@
 
       </header>
 
-      <TransitionGroup name="task" tag="ul" class="task-list">
+      <TransitionGroup name="task" tag="ul" class="task-list mb-2">
         <li
           v-for="task in sortedTasks"
           :key="task.id"
@@ -44,9 +44,37 @@
 
              </span>
              <span class="exp-days">{{ task.expDays }} дні(в)</span>
-             <button type="button" class="btn btn-outline-primary p-1">
+             <button @click="setMarkdown(task)" type="button" class="btn btn-outline-primary p-1">
                     Перевести на уцінку
                 </button>
+          <span class="task-tag" v-if="task.end">{{ task.end }}</span>
+        </li>
+      </TransitionGroup>
+
+      <div class="my-1">
+        <h3 v-show="markTask.length > 0" class="title">УЦІНКА</h3>
+      </div>
+      <!-- /.my-1 -->
+
+      <TransitionGroup name="markdown" tag="ul" class="task-list ">
+        <li
+          v-for="task in markTask"
+          :key="task.id"
+          class="task-item mk-color"
+          :class="{ completed: task.done }"
+
+        >
+          <div @click="toggleTask(task)" class="checkbox" :class="{ checked: task.done }">
+            <svg v-if="task.done" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 5L4.5 8.5L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="task-text mk-color">{{ task.name }} &nbsp;
+
+
+             </span>
+             <span class="exp-days">{{ task.expDays }} дні(в)</span>
+
           <span class="task-tag" v-if="task.end">{{ task.end }}</span>
         </li>
       </TransitionGroup>
@@ -57,6 +85,19 @@
 </template>
 
 <script>
+
+function moveObjectById(id, sourceArray, targetArray) {
+  const index = sourceArray.findIndex(item => item.id === id);
+
+  if (index !== -1) {
+    const removedItem = sourceArray.splice(index, 1)[0];
+    targetArray.push(removedItem);
+    return true; // об'єкт знайдено та переміщено
+  }
+
+  return false; // об'єкт не знайдено
+}
+
 export default {
   name: 'TodoList',
 
@@ -78,7 +119,8 @@ export default {
       tasks: [],
       newTaskText: '',
       nextId: null,
-      internalTheme: this.theme
+      internalTheme: this.theme,
+      markTask: [],
     }
   },
 
@@ -128,6 +170,23 @@ export default {
   },
 
   methods: {
+    setMarkdown(i) {
+        moveObjectById(i.id, this.tasks, this.markTask);
+        axios.get(route('date.set.markdown', {dateProduct: i.id})).then(resp => {
+        console.debug(reso);
+      })
+    },
+
+
+    loadMarkList() {
+        axios.get(route('date.get.markdown')).then(resp => {
+            this.markTask = resp.data.data;
+        }).catch(err => {
+            console.error(err);
+            this.tasks = [];
+        })
+    },
+
     loadList() {
         axios.get(route('date.get.todo')).then(resp => {
             this.tasks = resp.data.data;
@@ -160,6 +219,7 @@ export default {
   },
   mounted() {
     this.loadList();
+    this.loadMarkList();
   }
 }
 </script>
@@ -202,6 +262,8 @@ export default {
   --progress-bg:      #e8e4dc;
   --shadow-card:      0 4px 6px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.08);
   --checkbox-border:  #c8c0b0;
+  --mk-color-text: #FFD800;
+  --mk-color-bg: #111111;
 }
 
 /* ══════════════════════
@@ -239,6 +301,8 @@ export default {
   --progress-bg:      #222222;
   --shadow-card:      0 0 0 1px rgba(255,255,255,0.03), 0 32px 64px rgba(0,0,0,0.6);
   --checkbox-border:  #333333;
+  --mk-color-bg: #FFD800;
+  --mk-color-text: #111111;
 }
 
 .exp-days {
@@ -357,6 +421,11 @@ max-width: 720px;
   background: linear-gradient(90deg, var(--accent-from), var(--accent-to));
   border-radius: 99px;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mk-color {
+    background: var(--mk-color-bg) !important;
+color: var(--mk-color-text) !important;
 }
 
 /* ══════════
