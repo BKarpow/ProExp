@@ -353,4 +353,21 @@ class DateProductController extends Controller
     {
         return view('exp.todo');
     }
+
+    public function getListExpiredProducts()
+    {
+        return DateProductResource::collection(
+            DateProduct::where([
+                ['group_id', '=', Auth::user()->configDefaultGroup()],
+                ['end', '<', now()->format('Y.m.d')]
+            ])
+                ->orderBy('end', 'desc')
+                ->limit(20)->get()
+                ->unique(function ($item) {
+                    return $item->product_id . '-' . $item->end;
+                })
+                // Зрізаємо рівно 10 перших унікальних
+                ->take(10)
+        );
+    }
 }

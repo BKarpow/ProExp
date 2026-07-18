@@ -86,6 +86,11 @@ Route::get($prefixRoute.'/api/set/mark/{dateProduct}', [DateProductController::c
 Route::get($prefixRoute.'/api/get/mark/', [DateProductController::class, 'getMarkdownDateList'])
 ->name('date.get.markdown');
 
+// getListExpiredProducts
+
+Route::get($prefixRoute.'/api/get/expired/', [DateProductController::class, 'getListExpiredProducts'])
+    ->name('date.get.expired');
+
 $prefixRoute = null;
 $nameAlias = null;
 
