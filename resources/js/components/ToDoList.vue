@@ -86,6 +86,7 @@
 
 <script>
 
+const defaultKeyStorage = 'themeToDo';
 function moveObjectById(id, sourceArray, targetArray) {
   const index = sourceArray.findIndex(item => item.id === id);
 
@@ -213,13 +214,19 @@ export default {
     },
 
     toggleTheme() {
-      this.internalTheme = this.internalTheme === 'dark' ? 'light' : 'dark'
+      this.internalTheme = this.internalTheme === 'dark' ? 'light' : 'dark';
+        window.sessionStorage.setItem(defaultKeyStorage, String(this.internalTheme));
       this.$emit('theme-change', this.internalTheme)
-    }
+    },
+      storageTheme(){
+        const th = window.sessionStorage.getItem(defaultKeyStorage);
+        this.internalTheme = th || 'dark';
+      }
   },
   mounted() {
     this.loadList();
     this.loadMarkList();
+    this.storageTheme();
   }
 }
 </script>
