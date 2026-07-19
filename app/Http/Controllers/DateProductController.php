@@ -246,6 +246,7 @@ class DateProductController extends Controller
             ['product_id', '=', $request->product_id],
             ['group_id', '=', $request->group_id],
             ['end', '=', $de],
+            ['done', '=', false],
         ])->first();
         $exists = (bool)$d;
         return response()->json([
@@ -356,11 +357,13 @@ class DateProductController extends Controller
 
     public function getListExpiredProducts()
     {
+        $oneHundredDaysAgo = now()->subDays(100)->toDateString();
+        $today = now()->toDateString();
         return DateProductResource::collection(
-            DateProduct::where([
-                ['group_id', '=', Auth::user()->configDefaultGroup()],
-                ['end', '<', now()->format('Y.m.d')]
-            ])
+            DateProduct::where('group_id', Auth::user()->configDefaultGroup())
+                ->where('done', false)
+                ->where('end', '<', $today)          // Вже прострочені
+                ->where('end', '>=', $oneHundredDaysAgo)
                 ->orderBy('end', 'desc')
                 ->limit(20)->get()
                 ->unique(function ($item) {

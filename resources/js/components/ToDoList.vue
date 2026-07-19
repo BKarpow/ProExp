@@ -80,6 +80,35 @@
       </TransitionGroup>
 
 
+        <div class="my-1">
+            <h3 v-show="expTask.length > 0" class="title">Протермін</h3>
+        </div>
+        <!-- /.my-1 -->
+
+        <TransitionGroup name="exp" tag="ul" class="task-list ">
+            <li
+                v-for="task in expTask"
+                :key="task.id"
+                class="task-item ex-color"
+                :class="{ completed: task.done }"
+
+            >
+                <div @click="toggleTaskExp(task)" class="checkbox" :class="{ checked: task.done }">
+                    <svg v-if="task.done" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 5L4.5 8.5L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span class="task-text ex-color">{{ task.name }} &nbsp;
+
+
+             </span>
+                <span class="exp-days">{{ task.expDays }} дні(в)</span>
+
+                <span class="task-tag" v-if="task.end">{{ task.end }}</span>
+            </li>
+        </TransitionGroup>
+
+
     </div>
   </div>
 </template>
@@ -122,6 +151,7 @@ export default {
       nextId: null,
       internalTheme: this.theme,
       markTask: [],
+        expTask: [],
     }
   },
 
@@ -171,6 +201,15 @@ export default {
   },
 
   methods: {
+
+      loadExpList() {
+          axios.get(route('date.get.expired')).then(resp => {
+              this.expTask = resp.data.data;
+          }).catch(err => {
+              console.error(err);
+              this.expTask = [];
+          })
+      },
     setMarkdown(i) {
         moveObjectById(i.id, this.tasks, this.markTask);
         axios.get(route('date.set.markdown', {dateProduct: i.id})).then(resp => {
@@ -184,7 +223,7 @@ export default {
             this.markTask = resp.data.data;
         }).catch(err => {
             console.error(err);
-            this.tasks = [];
+            this.markTask = [];
         })
     },
 
@@ -203,6 +242,18 @@ export default {
       })
       this.$emit('task-toggled', { ...task })
     },
+
+      toggleTaskExp(task) {
+          task.done = !task.done;
+
+          axios.get(route('date.set.done', {dateProduct: task.id})).then(resp => {
+              console.debug(resp);
+              if (task.done) {
+                  this.expTask = this.expTask.filter(id => id.id !== task.id);
+              }
+          })
+          this.$emit('task-toggled', { ...task })
+      },
 
     addTask() {
       const text = this.newTaskText.trim()
@@ -226,6 +277,7 @@ export default {
   mounted() {
     this.loadList();
     this.loadMarkList();
+    this.loadExpList();
     this.storageTheme();
   }
 }
@@ -271,6 +323,8 @@ export default {
   --checkbox-border:  #c8c0b0;
   --mk-color-text: #FFD800;
   --mk-color-bg: #111111;
+    --ex-color-bg: #FFFFFF;
+    --ex-color-text: #B7410E;
 }
 
 /* ══════════════════════
@@ -310,6 +364,8 @@ export default {
   --checkbox-border:  #333333;
   --mk-color-bg: #FFD800;
   --mk-color-text: #111111;
+    --ex-color-bg: #B7410E;
+    --ex-color-text: #FFFFFF;
 }
 
 .exp-days {
@@ -433,6 +489,11 @@ max-width: 720px;
 .mk-color {
     background: var(--mk-color-bg) !important;
 color: var(--mk-color-text) !important;
+}
+
+.ex-color {
+    background: var(--ex-color-bg) !important;
+    color: var(--ex-color-text) !important;
 }
 
 /* ══════════
