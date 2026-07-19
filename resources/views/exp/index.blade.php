@@ -15,6 +15,10 @@
                             <i class="bi bi-node-plus-fill"></i> Додати новий термін
                         </a>
                         </div>
+                        <div class="mb-2">
+                            <todo></todo>
+                        </div>
+                        <!-- /.mb-2 -->
                         <!-- /.my-2 p-1 -->
                         <div class="row">
                             <div class="col-md-12">

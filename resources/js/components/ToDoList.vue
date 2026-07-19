@@ -5,6 +5,13 @@
         <div class="header-top">
           <span class="label">ЗАДАЧІ</span>
           <div class="header-right">
+              <span class="icon">
+                  <a href="/" class="btn btn-dark">
+                        <i class="bi bi-house-door-fill"></i>
+                  </a>
+                  <!-- /.btn btn-dark -->
+              </span>
+              <!-- /.icon -->
             <span class="counter">{{ completedCount }}/{{ tasks.length }}</span>
             <button class="theme-toggle" @click="toggleTheme" :title="isDark ? 'Світла тема' : 'Темна тема'">
               <!-- Sun -->
@@ -25,6 +32,11 @@
         </div>
 
       </header>
+
+        <div class="mb-1">
+            <h3 class="title">До перевірки</h3>
+        </div>
+        <!-- /.mb-1 -->
 
       <TransitionGroup name="task" tag="ul" class="task-list mb-2">
         <li
