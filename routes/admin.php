@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/test', function() {
+        dd(\Illuminate\Support\Facades\Auth::user()->expiredDays());
+    })->name('admin.test');
     Route::get('/', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/run-migrate', [AdminController::class, 'runMigrate'])->name('admin.runMigrate');
     Route::get('/user/', [AdminUserController::class, 'index'])->name('admin.user.index');
