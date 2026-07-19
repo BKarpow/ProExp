@@ -146,17 +146,18 @@ class User extends Authenticatable
 
     public function expiredDays()
     {
-        return Cache::remember(DateProduct::KEY_CACHE.$this->configDefaultGroup(), now()->addHours(8), function () {
+//        return Cache::remember(DateProduct::KEY_CACHE.$this->configDefaultGroup(), now()->addHours(8), function () {
             return DateProduct::query()
                 ->select('*')
                 ->selectRaw('DATEDIFF(end, CURDATE()) as days_remaining')
                 ->orderBy('days_remaining', 'asc')
                 ->where('group_id', (int)$this->configDefaultGroup())
+                ->where('done', '=', false)
                 ->having('days_remaining', '>=', 0)
                 ->having('days_remaining', '<=', $this->configDefaultDaysex())
                 ->limit(75)
                 ->get();
-        });
+//        });
         // return DateProduct::query()
         //     ->select('*')
         //     ->selectRaw('DATEDIFF(end, CURDATE()) as days_remaining')
