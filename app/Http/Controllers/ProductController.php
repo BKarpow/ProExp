@@ -11,8 +11,9 @@ use App\Rules\Ean13;
 use App\Models\ImageProduct;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
-class ProductController extends Controller
+class ProductController extends Controller    
 {
     private function getToApi(int $code)
     {
@@ -21,7 +22,7 @@ class ProductController extends Controller
             return [
                 'status_code' => 200,
                 'isDB' => true,
-                'json_response' => ['name' => $res->name, 'id' => $res->id, 'comment' => $res->comment], // якщо очікується JSON
+                'json_response' => ['name' => $res->productName(), 'id' => $res->id, 'comment' => $res->comment], // якщо очікується JSON
             ];
         }
         try {

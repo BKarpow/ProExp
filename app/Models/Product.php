@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class Product extends Model
 {
@@ -60,5 +61,18 @@ class Product extends Model
             return true;
         }
         return false;
+    }
+
+
+    public function productName($uid = null):string
+    {
+        $p = NameProductUserAlias::where([
+            ['user_id', '=',(!$uid) ? Auth::id() : $uid],
+            ['product_id', '=', $this->id]
+        ])->first();
+        if(!$p) {
+            return $this->name;
+        }
+        return $p->name;
     }
 }
