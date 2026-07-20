@@ -16,7 +16,9 @@
                         </a>
                         </div>
                         <div class="mb-2">
-                            <todo></todo>
+                            <a href="{{route('date.todo')}}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-card-checklist"></i> Перйти до ToDo
+                        </a>
                         </div>
                         <!-- /.mb-2 -->
                         <!-- /.my-2 p-1 -->
