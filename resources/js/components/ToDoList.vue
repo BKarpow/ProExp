@@ -47,14 +47,14 @@
 
         >
           <div @click="toggleTask(task)" class="checkbox" :class="{ checked: task.done }">
-            <svg v-if="task.done" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 5L4.5 8.5L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+
+              <i v-if="task.done" class="bi bi-check2-square"></i>
           </div>
-          <span class="task-text">{{ task.name }} &nbsp;
-
-
-             </span>
+          <span class="task-text">{{ task.name }} </span>
+          <a :href="hrefDateItem(task)" class="btn btn-outline-info p-1">
+            <i class="bi bi-eye-fill"></i>
+          </a>
+          <!-- /.btn btn-info -->
              <span class="exp-days">{{ task.expDays }} дні(в)</span>
              <button @click="setMarkdown(task)" type="button" class="btn btn-outline-primary p-1">
                     Перевести на уцінку
@@ -81,10 +81,11 @@
               <path d="M1 5L4.5 8.5L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <span class="task-text mk-color">{{ task.name }} &nbsp;
-
-
-             </span>
+          <span class="task-text mk-color">{{ task.name }}</span>
+          <a :href="hrefDateItem(task)" class="btn btn-outline-info p-1">
+            <i class="bi bi-eye-fill"></i>
+          </a>
+          <!-- /.btn btn-info -->
              <span class="exp-days">{{ task.expDays }} дні(в)</span>
 
           <span class="task-tag" v-if="task.end">{{ task.end }}</span>
@@ -110,10 +111,11 @@
                         <path d="M1 5L4.5 8.5L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
-                <span class="task-text ex-color">{{ task.name }} &nbsp;
-
-
-             </span>
+                <span class="task-text ex-color">{{ task.name }}</span>
+                <a :href="hrefDateItem(task)" class="btn btn-outline-info p-1">
+            <i class="bi bi-eye-fill"></i>
+          </a>
+          <!-- /.btn btn-info -->
                 <span class="exp-days">{{ task.expDays }} дні(в)</span>
 
                 <span class="task-tag" v-if="task.end">{{ task.end }}</span>
@@ -213,6 +215,10 @@ export default {
   },
 
   methods: {
+
+        hrefDateItem(i) {
+            return route('date.show', {dateProduct: i.id});
+        },
 
       loadExpList() {
           axios.get(route('date.get.expired')).then(resp => {
