@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title') Створити продукту  @endsection
+@section('title') Додавання терміну  @endsection
 
 @section('content')
     <div class="container">
