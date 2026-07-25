@@ -33,8 +33,38 @@
 
       </header>
 
+      <div class="mb-1">
+            <h3 v-show="warnExpList.length > 0" class="title">Є ПРОТЕРМІН</h3>
+        </div>
+        <!-- /.mb-1 -->
+
+      <TransitionGroup name="taskw" tag="ul" class="task-list mb-2">
+        <li
+          v-for="task in warnExpList"
+          :key="task.id"
+          class="task-item ex-color"
+          :class="{ completed: task.done }"
+
+        >
+          <div @click="toggleTask(task)" class="checkbox" :class="{ checked: task.done }">
+
+              <i v-if="task.done" class="bi bi-check2-square"></i>
+          </div>
+          <span class="task-text">{{ task.name }} </span>
+          <a :href="hrefDateItem(task)" class="btn btn-outline-info p-1">
+            <i class="bi bi-eye-fill"></i>
+          </a>
+          <!-- /.btn btn-info -->
+             <span class="exp-days">{{ task.expDays }} дні(в)</span>
+             <button @click="setMarkdown(task)" type="button" class="btn btn-outline-primary p-1">
+                    Перевести на уцінку
+                </button>
+          <span class="task-tag" v-if="task.end">{{ task.end }}</span>
+        </li>
+      </TransitionGroup>
+
         <div class="mb-1">
-            <h3 class="title">До перевірки</h3>
+            <h3 v-show="sortedTasks.length > 0" class="title">До перевірки</h3>
         </div>
         <!-- /.mb-1 -->
 
@@ -166,6 +196,7 @@ export default {
       internalTheme: this.theme,
       markTask: [],
         expTask: [],
+        warnExpList: [],
     }
   },
 
@@ -221,11 +252,25 @@ export default {
         },
 
       loadExpList() {
-          axios.get(route('date.get.expired')).then(resp => {
+          axios.get(route('date.get.expired.filter'), {
+            params:{
+              sub: 4
+            }}).then(resp => {
               this.expTask = resp.data.data;
           }).catch(err => {
               console.error(err);
               this.expTask = [];
+          })
+
+          axios.get(route('date.get.expired.filter'), {
+            params:{
+              maxExpDays: 4
+            }
+          }).then(resp => {
+              this.warnExpList = resp.data.data;
+          }).catch(err => {
+              console.error(err);
+              this.warnExpList = [];
           })
       },
     setMarkdown(i) {

@@ -373,4 +373,28 @@ class DateProductController extends Controller
                 ->take(10)
         );
     }
+
+
+    public function getListExpiredProductsEndFilter(Request $request)
+    {
+        $request->validate([
+            'maxExpDays' => 'nullable|numeric|min:1|max:100',
+            'sub' => 'nullable|integer|min:0|max:10',
+        ]);
+        $oneHundredDaysAgo = now()->subDays($request->maxExpDays ?? 100)->toDateString();
+        $today = now()->subDays($request->sub ?? 0)->toDateString();
+        return DateProductResource::collection(
+            DateProduct::where('group_id', Auth::user()->configDefaultGroup())
+                ->where('done', false)
+                ->where('end', '<', $today)          // Вже прострочені
+                ->where('end', '>=', $oneHundredDaysAgo)
+                ->orderBy('end', 'desc')
+                ->limit(20)->get()
+                ->unique(function ($item) {
+                    return $item->product_id . '-' . $item->end;
+                })
+                // Зрізаємо рівно 10 перших унікальних
+                ->take(10)
+        );
+    }
 }

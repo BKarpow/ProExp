@@ -88,8 +88,13 @@ Route::get($prefixRoute.'/api/get/mark/', [DateProductController::class, 'getMar
 
 // getListExpiredProducts
 
-Route::get($prefixRoute.'/api/get/expired/', [DateProductController::class, 'getListExpiredProducts'])
+Route::get($prefixRoute.'/api/get/expired', [DateProductController::class, 'getListExpiredProducts'])
     ->name('date.get.expired');
+
+    //getListExpiredProductsEnd4Days
+
+    Route::get($prefixRoute.'/api/get/expired/filter', [DateProductController::class, 'getListExpiredProductsEndFilter'])
+    ->name('date.get.expired.filter');
 
 $prefixRoute = null;
 $nameAlias = null;
