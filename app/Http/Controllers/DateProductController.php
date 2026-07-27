@@ -223,7 +223,9 @@ class DateProductController extends Controller
     {
         $this->authorize('delete', $dateProduct);
         $dateProduct->delete();
-        return redirect()->route('home')->withStatus("Термін видалено.");
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
     public function delImg(DateProduct $dateProduct)
@@ -396,5 +398,18 @@ class DateProductController extends Controller
                 // Зрізаємо рівно 10 перших унікальних
                 ->take(10)
         );
+    }
+
+    public function deleteAllDateFromGroup(Product $product)
+    {
+        
+        $d = DateProduct::where('group_id', Auth::user()->configDefaultGroup())
+        ->whereProductId($product->id)->delete();
+        return response()->json([
+            'status' => true,
+            'deleteCount' => $d
+        ]);
+
+
     }
 }

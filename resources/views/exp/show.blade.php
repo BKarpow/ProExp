@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    {{ $t->product->name }}
+    {{ $t->productName() }}
 @endsection
 
 @section('content')
@@ -29,6 +29,9 @@
                                 <span class="badge bg-secondary">Тільки для читання, створено користувачем
                                     {{ $t->user->name }}</span>
                             @endcannot
+                            <div class="my-1">
+                                <delete-btn name-item="всі терміни цього продукту" url-delete="{{ route('date.delete.from.group', ['product' => $t->product->id]) }}"></delete-btn>
+                            </div>
                         </div>
                         <!-- /.my-2 p-1 -->
                         <div class="mb-2 p-1">

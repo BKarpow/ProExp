@@ -39,7 +39,7 @@ Route::post($prefixRoute.'/edit/{dateProduct}', [DateProductController::class, '
 Route::post($prefixRoute.'/info/exists', [DateProductController::class, 'dateExists'])
 ->name('date.info.exists');
 
-Route::get($prefixRoute.'/del/{dateProduct}', [DateProductController::class, 'destroy'])
+Route::delete($prefixRoute.'/del/{dateProduct}', [DateProductController::class, 'destroy'])
 ->name('date.delete');
 
 Route::get($prefixRoute.'/search/', [DateProductController::class, 'search'])
@@ -93,8 +93,13 @@ Route::get($prefixRoute.'/api/get/expired', [DateProductController::class, 'getL
 
     //getListExpiredProductsEnd4Days
 
-    Route::get($prefixRoute.'/api/get/expired/filter', [DateProductController::class, 'getListExpiredProductsEndFilter'])
-    ->name('date.get.expired.filter');
+Route::get($prefixRoute.'/api/get/expired/filter', [DateProductController::class, 'getListExpiredProductsEndFilter'])
+    ->name('date.delete.from.group');
+
+//deleteAllDateFromGroup
+
+Route::delete($prefixRoute.'/api/delete/from/group/{product}', [DateProductController::class, 'deleteAllDateFromGroup'])
+    ->name('date.delete.from.group');
 
 $prefixRoute = null;
 $nameAlias = null;

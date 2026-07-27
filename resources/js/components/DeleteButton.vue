@@ -34,7 +34,7 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                     axios
-                        .get(this.urlDelete)
+                        .delete(this.urlDelete)
                         .then((r) => {
                             if (r.status == 200) {
                                 Swal.fire("Видалено", "", "success");
