@@ -61,6 +61,8 @@ import ToDoList from './components/ToDoList.vue';
 import ExpiryDateScanner from './components/ExpiryDateScanner.vue';
 import DetectExp from './components/DetectExp.vue';
 import DetectPrices from './components/DetectPrices.vue';
+import CategoriesManager from './components/CategoriesManager.vue';
+import ModelsManager from './components/ModelsManager.vue';
 app.component('delete-btn', DeleteButton);
 app.component('input-date', InputDate);
 app.component('example-component', ExampleComponent);
@@ -83,6 +85,8 @@ app.component("todo", ToDoList );
 app.component("date-scaner", ExpiryDateScanner);
 app.component("detect-exp", DetectExp);
 app.component("detect-prices", DetectPrices);
+app.component("s-group", CategoriesManager);
+app.component("s-models", ModelsManager);
 
 /**
  * The following block of code may be used to automatically register your

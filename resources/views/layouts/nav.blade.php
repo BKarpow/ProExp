@@ -89,6 +89,29 @@
                             </div>
                             <!-- /.dropdown-menu dropdown-menu-end -->
                         </li>
+
+
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown1" class="nav-link dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                Менеджмент
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="{{ route('shoes.group') }}" class="dropdown-item">
+                                    Групи товарів
+                                </a>
+
+                                <a href="{{ route('shoes.models') }}" class="dropdown-item">
+                                    Моделі
+                                </a>
+                                
+                                
+                                
+                                
+                            
+                            </div>
+                            <!-- /.dropdown-menu dropdown-menu-end -->
+                        </li>
                     @endif
 
 

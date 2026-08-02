@@ -8,6 +8,7 @@ use App\Http\Controllers\TelegramHandlerController;
 use App\Http\Middleware\EnsurePhoneIsSet;
 use App\Http\Controllers\AutoImageProductController;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\InfoApiController;
 
 
 // Route::get('/test-ssl', function () {
@@ -88,7 +89,25 @@ require __DIR__.'/exp.php';
 require __DIR__.'/config.php';
 require __DIR__.'/import.php';
 require __DIR__.'/telegram.php';
-require __DIR__.'/api.php';
+
+
+
+
+$prefixRoute = "/api";
+
+Route::get($prefixRoute.'/shops', [InfoApiController::class, 'getShops'])
+->name('api.info.shops');
+
+// getGroupsFromShop
+
+Route::get($prefixRoute.'/groups', [InfoApiController::class, 'getGroupsFromShop'])
+->name('api.info.shops');
+
+$prefixRoute = null;
+
+
+
 require __DIR__.'/admin.php';
 require __DIR__.'/wproduct.php';
 require __DIR__.'/inventory.php';
+require __DIR__.'/biz.php';

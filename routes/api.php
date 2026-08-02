@@ -1,14 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\InfoApiController;
+use App\Http\Controllers\GroupShoesController;
+use App\Http\Controllers\ModelsShoesController;
 
-$prefixRoute = "/api";
-
-Route::get($prefixRoute.'/shops', [InfoApiController::class, 'getShops'])
-->name('api.info.shops');
-
-// getGroupsFromShop
-
-Route::get($prefixRoute.'/groups', [InfoApiController::class, 'getGroupsFromShop'])
-->name('api.info.shops');
+// Створюємо ресурсний маршрут для груп товарів
+// Запит буде йти на: /rest-api/categories
+Route::apiResource('/shoes/groups', GroupShoesController::class);
+Route::apiResource('/shoes/models', ModelsShoesController::class);
