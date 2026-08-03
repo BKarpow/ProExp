@@ -3,64 +3,95 @@
 namespace App\Http\Controllers;
 
 use App\Models\WarehouseShoes;
-use App\Http\Requests\StoreWarehouseShoesRequest;
-use App\Http\Requests\UpdateWarehouseShoesRequest;
+use App\Models\GroupShoes;
+use App\Models\ModelsShoes;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class WarehouseShoesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Отримання списку залишків на складі з пагінацією та зв'язками.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $items = WarehouseShoes::with(['group', 'model'])
+        ->where('active', true)
+            ->latest('id')
+            ->paginate(200);
+
+        return response()->json($items);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Отримання допоміжних даних для випадаючих списків (Групи та Моделі).
      */
-    public function create()
+    public function formData(): JsonResponse
     {
-        //
+        return response()->json([
+            'groups' => GroupShoes::select('id', 'name')->where('active', true)->get(),
+            'models' => ModelsShoes::select('id', 'name')->where('active', true)->get(),
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Збереження нового запису.
      */
-    public function store(StoreWarehouseShoesRequest $request)
+    public function store(Request $request): JsonResponse
     {
-        //
+        $validated = $request->validate([
+            'group_id' => 'required|exists:group_shoes,id',
+            'models_id' => 'required|exists:models_shoes,id',
+            'sizes' => 'nullable|array',
+            'residual' => 'nullable|integer|min:0',
+            'price' => 'nullable|integer|min:0',
+            'active' => 'boolean',
+        ]);
+
+        $item = WarehouseShoes::create($validated);
+
+        return response()->json([
+            'message' => 'Запис успішно додано',
+            'data' => $item->load(['group', 'model']),
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Оновлення запису.
      */
-    public function show(WarehouseShoes $warehouseShoes)
+    public function update(Request $request, WarehouseShoes $warehouseShoe): JsonResponse
     {
-        //
+        $validated = $request->validate([
+            'group_id' => 'required|exists:group_shoes,id',
+            'models_id' => 'required|exists:models_shoes,id',
+            'sizes' => 'nullable|array',
+            'residual' => 'nullable|integer|min:0',
+            'price' => 'nullable|integer|min:0',
+            'active' => 'boolean',
+        ]);
+
+        $warehouseShoe->update($validated);
+
+        return response()->json([
+            'message' => 'Запис успішно оновлено',
+            'data' => $warehouseShoe->load(['group', 'model']),
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Видалення запису.
      */
-    public function edit(WarehouseShoes $warehouseShoes)
+    public function destroy(WarehouseShoes $warehouseShoe): JsonResponse
     {
-        //
+        $warehouseShoe->delete();
+
+        return response()->json([
+            'message' => 'Запис успішно видалено',
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateWarehouseShoesRequest $request, WarehouseShoes $warehouseShoes)
+    public function showSPA()
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(WarehouseShoes $warehouseShoes)
-    {
-        //
+        return view('biz.warehouse');
     }
 }

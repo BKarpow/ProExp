@@ -104,6 +104,10 @@
                                 <a href="{{ route('shoes.models') }}" class="dropdown-item">
                                     Моделі
                                 </a>
+
+                                <a href="{{ route('shoes.warehouse') }}" class="dropdown-item">
+                                    Склад
+                                </a>
                                 
                                 
                                 
