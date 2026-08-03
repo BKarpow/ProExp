@@ -1,262 +1,349 @@
 <template>
-  <div class="container my-3 px-2 px-sm-3">
-    <!-- Шапка з кнопкою створення -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h3 class="fw-bold m-0">Склад взуття</h3>
-      <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" @click="openModal()">
-        ➕ Додати
-      </button>
-    </div>
+  <div :class="['app-wrapper p-2 p-md-3', isDarkMode ? 'bg-dark text-light' : 'bg-light text-dark']">
+    <div class="container-fluid max-width-lg">
+      
+      <!-- Шапка: Назва + Пошук + Темний режим + Додати -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h4 class="fw-bold m-0 d-flex align-items-center gap-2">
+          👟 Склад взуття
+        </h4>
 
-    <!-- Пошуковий блок -->
-    <div class="mb-3">
-      <div class="input-group input-group-sm shadow-sm rounded-pill overflow-hidden">
-        <span class="input-group-text bg-white border-0 ps-3">🔍</span>
-        <input 
-          v-model="searchQuery" 
-          type="text" 
-          class="form-control border-0 bg-white" 
-          placeholder="Пошук моделі чи групи..."
-        />
+        <div class="d-flex align-items-center gap-2">
+          <!-- Перемикач темної/світлої теми -->
+          <button 
+            type="button" 
+            class="btn btn-sm shadow-sm"
+            :class="isDarkMode ? 'btn-outline-light' : 'btn-outline-dark'"
+            @click="toggleTheme"
+            title="Змінити тему"
+          >
+            {{ isDarkMode ? '☀️ Світла' : '🌙 Темна' }}
+          </button>
+
+          <button class="btn btn-primary btn-sm fw-bold shadow-sm" @click="openModal()">
+            ➕ Додати
+          </button>
+        </div>
+      </div>
+
+      <!-- Пошуковий блок -->
+      <div class="mb-3">
+        <div class="input-group input-group-sm shadow-sm">
+          <span class="input-group-text border-0" :class="isDarkMode ? 'bg-secondary text-light' : 'bg-white text-muted'">🔍</span>
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            class="form-control border-0"
+            :class="isDarkMode ? 'bg-secondary text-light placeholder-light' : 'bg-white text-dark'"
+            placeholder="Пошук по моделі..."
+          />
+          <button 
+            v-if="searchQuery" 
+            class="btn border-0" 
+            :class="isDarkMode ? 'bg-secondary text-light' : 'bg-white text-muted'"
+            type="button" 
+            @click="searchQuery = ''"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Динамічні Вкладки для Груп (Темний текст для неактивних у Dark Mode) -->
+      <ul class="nav nav-pills mb-3 group-tabs gap-1 flex-nowrap overflow-auto pb-1">
+        <li class="nav-item">
+          <button 
+            class="nav-item-btn rounded-pill px-3 py-1 border-0 fw-bold small"
+            :class="selectedGroupId === null ? 'btn-primary text-white' : (isDarkMode ? 'bg-light text-dark' : 'bg-white text-dark')"
+            @click="selectGroup(null)"
+          >
+            Всі
+          </button>
+        </li>
+        <li v-for="group in groups" :key="group.id" class="nav-item">
+          <button 
+            class="nav-item-btn rounded-pill px-3 py-1 border-0 fw-bold small"
+            :class="selectedGroupId === group.id ? 'btn-primary text-white' : (isDarkMode ? 'bg-light text-dark' : 'bg-white text-dark')"
+            @click="selectGroup(group.id)"
+          >
+            {{ group.name }}
+          </button>
+        </li>
+      </ul>
+
+      <!-- Спінер завантаження -->
+      <div v-if="loading" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+
+      <!-- Компактна Таблиця -->
+      <div v-else class="card border-0 shadow-sm rounded-3 overflow-hidden" :class="isDarkMode ? 'bg-dark' : 'bg-white'">
+        <div class="table-responsive">
+          <table 
+            class="table align-middle text-nowrap mb-0 custom-stylish-table"
+            :class="isDarkMode ? 'table-dark table-hover' : 'table-hover'"
+          >
+            <tbody>
+              <tr v-if="filteredItems.length === 0">
+                <td colspan="3" class="text-center py-4 text-muted">
+                  {{ searchQuery ? 'Нічого не знайдено' : 'Немає записів у цій категорії' }}
+                </td>
+              </tr>
+
+              <tr v-else v-for="item in filteredItems" :key="item.id">
+                <!-- Колонка 1: Модель та Ціна під нею (без категорії) -->
+                <td class="px-3 py-2 cell-model">
+                  <div class="fw-bold text-truncate" style="max-width: 140px;" :title="item.model?.name">
+                    {{ item.model?.name || '—' }}
+                  </div>
+                  <small v-if="item.price" class="fw-bold text-success d-block" style="font-size: 0.8rem;">
+                    {{ item.price }} ₴
+                  </small>
+                </td>
+
+                <!-- Колонка 2: Розміри (Максимум місця) -->
+                <td class="px-2 py-2 cell-sizes">
+                  <div class="d-flex flex-wrap gap-1 align-items-center">
+                    <template v-if="item.sizes && item.sizes.length">
+                      <span 
+                        v-for="(size, idx) in item.sizes" 
+                        :key="idx" 
+                        class="badge size-badge shadow-sm"
+                        :class="isDarkMode ? 'bg-secondary text-light border border-dark' : 'bg-light text-dark border'"
+                        @click="openSellModal(item, size, idx)"
+                        title="Натисніть щоб продати цей розмір"
+                      >
+                        {{ size }}
+                      </span>
+                    </template>
+                    <span v-else class="small text-muted fst-italic">Немає</span>
+                  </div>
+                </td>
+
+                <!-- Колонка 3: Випадаюче меню дій "..." -->
+                <td class="px-2 py-2 text-end cell-actions" style="width: 1%;">
+                  <div class="dropdown">
+                    <button 
+                      class="btn btn-sm border-0 px-2 py-0 text-secondary fw-bold rounded-circle action-dots-btn"
+                      type="button" 
+                      data-bs-toggle="dropdown" 
+                      aria-expanded="false"
+                      title="Дії"
+                    >
+                      •••
+                    </button>
+                    <ul 
+                      class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3" 
+                      :class="isDarkMode ? 'dropdown-menu-dark bg-secondary' : ''"
+                    >
+                      <li>
+                        <button class="dropdown-item small d-flex align-items-center gap-2" @click="openModal(item)">
+                          ✏️ Редагувати
+                        </button>
+                      </li>
+                      <li>
+                        <button class="dropdown-item small text-danger d-flex align-items-center gap-2" @click="deleteItem(item.id)">
+                          🗑️ Видалити
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Пагінація -->
+      <div v-if="pagination.last_page > 1" class="d-flex justify-content-between align-items-center mt-3">
         <button 
-          v-if="searchQuery" 
-          class="btn btn-white border-0 pe-3 text-secondary" 
-          type="button" 
-          @click="searchQuery = ''"
+          class="btn btn-sm rounded-pill px-3 shadow-sm"
+          :class="isDarkMode ? 'btn-outline-light' : 'btn-outline-primary'"
+          :disabled="pagination.current_page === 1"
+          @click="fetchItems(pagination.current_page - 1)"
         >
-          ✕
+          ← Попередня
+        </button>
+
+        <span class="small fw-bold">
+          {{ pagination.current_page }} / {{ pagination.last_page }}
+        </span>
+
+        <button 
+          class="btn btn-sm rounded-pill px-3 shadow-sm"
+          :class="isDarkMode ? 'btn-outline-light' : 'btn-outline-primary'"
+          :disabled="pagination.current_page === pagination.last_page"
+          @click="fetchItems(pagination.current_page + 1)"
+        >
+          Наступна →
         </button>
       </div>
-    </div>
 
-    <!-- Спінер завантаження -->
-    <div v-if="loading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status"></div>
-      <div class="small text-muted mt-2">Завантаження залишків...</div>
-    </div>
-
-    <!-- Порожній стан -->
-    <div v-else-if="filteredItems.length === 0" class="text-center py-5 bg-white rounded-3 shadow-sm">
-      <div class="fs-1">👟</div>
-      <p class="text-muted mb-0">
-        {{ searchQuery ? 'Нічого не знайдено' : 'Склад порожній' }}
-      </p>
-    </div>
-
-    <!-- Список Карток (Card View) -->
-    <div v-else class="row g-3">
-      <div 
-        v-for="item in filteredItems" 
-        :key="item.id" 
-        class="col-12 col-sm-6 col-md-4"
-      >
-        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative hover-card">
-          <div class="card-body p-3 d-flex flex-column justify-content-between">
-            
-            <!-- Верхня частина: Іконка, Модель та Група -->
-            <div>
-              <div class="d-flex align-items-start gap-2 mb-2">
-                <div class="shoe-icon-wrapper bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0">
-                  👟
-                </div>
-
-                <div class="overflow-hidden flex-grow-1">
-                  <h6 class="card-title fw-bold text-dark text-truncate mb-0" :title="item.model?.name">
-                    {{ item.model?.name || 'Без назви' }}
-                  </h6>
-                  <small class="text-muted text-truncate d-block" :title="item.group?.name">
-                    {{ item.group?.name || 'Без групи' }}
-                  </small>
-                </div>
+      <!-- Модальне вікно підтвердження продажу -->
+      <div v-if="showSellModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+          <div class="modal-content rounded-4 border-0 shadow-lg" :class="isDarkMode ? 'bg-dark text-light border-secondary' : ''">
+            <div class="modal-body text-center p-3">
+              <div class="fs-2 mb-1">🛍️</div>
+              <h6 class="fw-bold mb-1">Продати розмір {{ selectedSize }}?</h6>
+              <p class="small text-muted mb-3">{{ selectedSellItem?.model?.name }}</p>
+              <div class="d-grid gap-2">
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-success rounded-pill fw-bold shadow-sm" 
+                  :disabled="selling"
+                  @click="confirmSell"
+                >
+                  <span v-if="selling" class="spinner-border spinner-border-sm me-1"></span>
+                  Продано
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-light rounded-pill text-muted" 
+                  @click="showSellModal = false"
+                >
+                  Скасувати
+                </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <!-- Блок Розмірів (Клікабельні для продажу) -->
-              <div class="my-2">
-                <small class="text-muted d-block mb-1" style="font-size: 0.75rem;">
-                  РОЗМІРИ (натисніть для продажу):
-                </small>
-                <div class="d-flex flex-wrap gap-1">
-                  <button 
-                    v-if="item.sizes && item.sizes.length"
-                    v-for="(size, idx) in item.sizes" 
-                    :key="idx" 
-                    type="button"
-                    class="btn btn-sm btn-light text-dark border border-secondary border-opacity-25 fw-semibold px-2 py-1 size-btn"
-                    @click="confirmSellSize(item, size)"
-                    title="Продати цей розмір"
+      <!-- Модальне вікно (Створення / Редагування) -->
+      <div v-if="showModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content rounded-4 border-0 shadow-lg" :class="isDarkMode ? 'bg-dark text-light' : ''">
+            <div class="modal-header border-bottom-0 pb-0">
+              <h5 class="modal-title fw-bold">
+                {{ isEditing ? 'Редагувати' : 'Новий товар' }}
+              </h5>
+              <button 
+                type="button" 
+                class="btn-close" 
+                :class="isDarkMode ? 'btn-close-white' : ''" 
+                @click="closeModal"
+              ></button>
+            </div>
+            <form @submit.prevent="saveItem">
+              <div class="modal-body">
+                
+                <!-- Група -->
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">Група взуття *</label>
+                  <select 
+                    v-model="form.group_id" 
+                    class="form-select rounded-3" 
+                    :class="[isDarkMode ? 'bg-dark text-light border-secondary' : '', { 'is-invalid': errors.group_id }]" 
+                    required
                   >
-                    {{ size }} 🏷️
-                  </button>
-                  <span v-else class="small text-muted fst-italic">Немає в наявності</span>
+                    <option value="" disabled>Оберіть групу...</option>
+                    <option v-for="group in groups" :key="group.id" :value="group.id">
+                      {{ group.name }}
+                    </option>
+                  </select>
+                  <div v-if="errors.group_id" class="invalid-feedback">{{ errors.group_id[0] }}</div>
                 </div>
-              </div>
-            </div>
 
-            <!-- Нижня частина: Ціна, залишок та дії -->
-            <div class="pt-2 border-top mt-2 d-flex justify-content-between align-items-center">
-              <div>
-                <div class="fw-bold text-primary fs-6">
-                  {{ item.price ? `${item.price} ₴` : 'Ціна не вказана' }}
+                <!-- Модель -->
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">Модель взуття *</label>
+                  <select 
+                    v-model="form.models_id" 
+                    class="form-select rounded-3" 
+                    :class="[isDarkMode ? 'bg-dark text-light border-secondary' : '', { 'is-invalid': errors.models_id }]" 
+                    required
+                  >
+                    <option value="" disabled>Оберіть модель...</option>
+                    <option v-for="model in models" :key="model.id" :value="model.id">
+                      {{ model.name }}
+                    </option>
+                  </select>
+                  <div v-if="errors.models_id" class="invalid-feedback">{{ errors.models_id[0] }}</div>
                 </div>
-                <div class="small">
-                  Залишок: 
-                  <span class="fw-bold" :class="(item.sizes?.length || 0) > 0 ? 'text-success' : 'text-danger'">
-                    {{ item.sizes?.length || 0 }} шт.
-                  </span>
+
+                <!-- Зручний вибір розмірів КНОПКАМИ (35 - 46) -->
+                <div class="mb-3">
+                  <label class="form-label small fw-bold d-flex justify-content-between align-items-center">
+                    <span>Натисніть для додавання розміру (35-46):</span>
+                    <span class="badge bg-primary">Усього: {{ selectedSizesList.length }} шт.</span>
+                  </label>
+                  
+                  <!-- Кнопки швидкого вибору розміру -->
+                  <div class="d-flex flex-wrap gap-1 mb-2">
+                    <button 
+                      v-for="s in availableSizes" 
+                      :key="s" 
+                      type="button" 
+                      class="btn btn-sm btn-outline-primary rounded-3 size-picker-btn fw-bold"
+                      @click="addSize(s)"
+                    >
+                      {{ s }}
+                    </button>
+                  </div>
+
+                  <!-- Список доданих розмірів з можливістю швидкого видалення -->
+                  <div 
+                    class="p-2 rounded-3 border min-height-sizes d-flex flex-wrap gap-1 align-items-center"
+                    :class="isDarkMode ? 'bg-secondary bg-opacity-25 border-secondary' : 'bg-light'"
+                  >
+                    <span v-if="selectedSizesList.length === 0" class="small text-muted fst-italic">
+                      Натисніть кнопки вище, щоб додати розміри...
+                    </span>
+                    <span 
+                      v-for="(size, idx) in selectedSizesList" 
+                      :key="idx" 
+                      class="badge bg-primary rounded-pill size-selected-badge"
+                      @click="removeSize(idx)"
+                      title="Натисніть щоб видалити цей розмір"
+                    >
+                      {{ size }} <span class="ms-1 opacity-75">✕</span>
+                    </span>
+                  </div>
                 </div>
+
+                <!-- Ціна -->
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">Ціна (грн)</label>
+                  <input 
+                    v-model.number="form.price" 
+                    type="number" 
+                    min="0" 
+                    class="form-control rounded-3" 
+                    :class="isDarkMode ? 'bg-dark text-light border-secondary' : ''" 
+                  />
+                </div>
+
+                <!-- Активність -->
+                <div class="form-check form-switch mb-2">
+                  <input 
+                    v-model="form.active" 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    role="switch" 
+                    id="activeSwitch"
+                  />
+                  <label class="form-check-label small fw-bold" for="activeSwitch">
+                    {{ form.active ? '🟢 Товар активний' : '🔴 Товар прихований' }}
+                  </label>
+                </div>
+
               </div>
 
-              <div class="d-flex gap-1">
-                <button 
-                  class="btn btn-outline-warning btn-sm border-0 rounded-circle p-2 d-flex align-items-center justify-content-center" 
-                  style="width: 34px; height: 34px;"
-                  @click="openModal(item)" 
-                  title="Редагувати"
-                >
-                  ✏️
+              <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-sm btn-light rounded-pill px-3" @click="closeModal">Скасувати</button>
+                <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4" :disabled="saving">
+                  <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span> 
+                  Зберегти
                 </button>
-                <button 
-                  class="btn btn-outline-danger btn-sm border-0 rounded-circle p-2 d-flex align-items-center justify-content-center" 
-                  style="width: 34px; height: 34px;"
-                  @click="deleteItem(item.id)" 
-                  title="Видалити"
-                >
-                  🗑️
-                </button>
               </div>
-            </div>
-
+            </form>
           </div>
         </div>
       </div>
+
     </div>
-
-    <!-- Мобільна Пагінація -->
-    <div v-if="pagination.last_page > 1" class="d-flex justify-content-between align-items-center mt-4 px-1">
-      <button 
-        class="btn btn-outline-primary btn-sm rounded-pill px-3" 
-        :disabled="pagination.current_page === 1"
-        @click="fetchItems(pagination.current_page - 1)"
-      >
-        ← Попередня
-      </button>
-
-      <span class="small text-muted fw-bold">
-        {{ pagination.current_page }} з {{ pagination.last_page }}
-      </span>
-
-      <button 
-        class="btn btn-outline-primary btn-sm rounded-pill px-3" 
-        :disabled="pagination.current_page === pagination.last_page"
-        @click="fetchItems(pagination.current_page + 1)"
-      >
-        Наступна →
-      </button>
-    </div>
-
-    <!-- Модальне вікно підтвердження продажу -->
-    <div v-if="showSellModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
-      <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 text-center p-3">
-          <div class="fs-1 mb-2">🛍️</div>
-          <h5 class="fw-bold mb-1">Продати розмір?</h5>
-          <p class="small text-muted mb-3">
-            Модель: <strong>{{ itemToSell?.model?.name }}</strong><br>
-            Розмір: <span class="badge bg-primary fs-6">{{ sizeToSell }}</span>
-          </p>
-
-          <div class="d-flex gap-2 justify-content-center">
-            <button class="btn btn-light rounded-pill px-3 flex-grow-1" @click="showSellModal = false">
-              Скасувати
-            </button>
-            <button class="btn btn-success rounded-pill px-3 flex-grow-1" :disabled="selling" @click="processSellSize">
-              <span v-if="selling" class="spinner-border spinner-border-sm me-1"></span>
-              Продано 💰
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Модальне вікно (Створення / Редагування) -->
-    <div v-if="showModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold">
-              {{ isEditing ? 'Редагувати товар' : 'Новий товар' }}
-            </h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
-          </div>
-          <form @submit.prevent="saveItem">
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">Група взуття *</label>
-                <select v-model="form.group_id" class="form-select rounded-3" :class="{ 'is-invalid': errors.group_id }" required>
-                  <option value="" disabled>Оберіть групу...</option>
-                  <option v-for="group in groups" :key="group.id" :value="group.id">
-                    {{ group.name }}
-                  </option>
-                </select>
-                <div v-if="errors.group_id" class="invalid-feedback">{{ errors.group_id[0] }}</div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">Модель взуття *</label>
-                <select v-model="form.models_id" class="form-select rounded-3" :class="{ 'is-invalid': errors.models_id }" required>
-                  <option value="" disabled>Оберіть модель...</option>
-                  <option v-for="model in models" :key="model.id" :value="model.id">
-                    {{ model.name }}
-                  </option>
-                </select>
-                <div v-if="errors.models_id" class="invalid-feedback">{{ errors.models_id[0] }}</div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">Розміри в наявності</label>
-                <input 
-                  v-model="sizesInput" 
-                  type="text" 
-                  class="form-control rounded-3" 
-                  placeholder="38, 39, 40, 41" 
-                />
-                <div class="form-text small">
-                  Вкажіть через кому. Кількість шт. автоматично: 
-                  <span class="badge bg-secondary">{{ computedResidual }}</span>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">Ціна (грн)</label>
-                <input v-model.number="form.price" type="number" min="0" class="form-control rounded-3" placeholder="0" />
-              </div>
-
-              <div class="form-check form-switch mb-2 pt-1">
-                <input 
-                  v-model="form.active" 
-                  class="form-check-input" 
-                  type="checkbox" 
-                  role="switch" 
-                  id="activeSwitch"
-                />
-                <label class="form-check-label small fw-bold" for="activeSwitch">
-                  {{ form.active ? '🟢 Товар активний' : '🔴 Товар прихований (неактивний)' }}
-                </label>
-              </div>
-            </div>
-
-            <div class="modal-footer border-0 pt-0">
-              <button type="button" class="btn btn-light rounded-pill px-4" @click="closeModal">Скасувати</button>
-              <button type="submit" class="btn btn-primary rounded-pill px-4" :disabled="saving">
-                <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span> 
-                Зберегти
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -266,24 +353,46 @@ import axios from 'axios';
 
 const API_URL = '/rapi/warehouse-shoes';
 
+// Доступні розміри для вибору кнопками
+const availableSizes = [35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46];
+
+// 1. Збереження теми в localStorage
+const isDarkMode = ref(localStorage.getItem('warehouse_theme') === 'dark');
+
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value;
+  localStorage.setItem('warehouse_theme', isDarkMode.value ? 'dark' : 'light');
+};
+
+// 2. Збереження обраної вкладки в localStorage
+const savedGroup = localStorage.getItem('warehouse_selected_group');
+const selectedGroupId = ref(savedGroup !== null ? (savedGroup === 'null' ? null : Number(savedGroup)) : null);
+
+const selectGroup = (groupId) => {
+  selectedGroupId.value = groupId;
+  localStorage.setItem('warehouse_selected_group', groupId === null ? 'null' : groupId);
+};
+
 const items = ref([]);
 const groups = ref([]);
 const models = ref([]);
 const loading = ref(false);
 const saving = ref(false);
-const selling = ref(false);
-
 const showModal = ref(false);
-const showSellModal = ref(false);
 const isEditing = ref(false);
 const currentId = ref(null);
 
-// Змінні для модалки продажу
-const itemToSell = ref(null);
-const sizeToSell = ref(null);
+// Динамічний масив для вибору розмірів у формі
+const selectedSizesList = ref([]);
+
+// Модалка продажу
+const showSellModal = ref(false);
+const selling = ref(false);
+const selectedSellItem = ref(null);
+const selectedSize = ref(null);
+const selectedSizeIndex = ref(null);
 
 const searchQuery = ref('');
-const sizesInput = ref('');
 
 const pagination = reactive({
   current_page: 1,
@@ -301,23 +410,66 @@ const form = reactive({
 
 const errors = ref({});
 
+// Логіка додавання/видалення розміру кнопками
+const addSize = (size) => {
+  selectedSizesList.value.push(String(size));
+};
+
+const removeSize = (index) => {
+  selectedSizesList.value.splice(index, 1);
+};
+
 const filteredItems = computed(() => {
-  if (!searchQuery.value.trim()) return items.value;
-  const query = searchQuery.value.toLowerCase().trim();
-  return items.value.filter(item => {
-    const modelName = item.model?.name?.toLowerCase() || '';
-    const groupName = item.group?.name?.toLowerCase() || '';
-    return modelName.includes(query) || groupName.includes(query);
-  });
+  let result = items.value;
+
+  if (selectedGroupId.value !== null) {
+    result = result.filter(item => item.group_id === selectedGroupId.value);
+  }
+
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim();
+    result = result.filter(item => {
+      const modelName = item.model?.name?.toLowerCase() || '';
+      return modelName.includes(query);
+    });
+  }
+
+  return result;
 });
 
-const computedResidual = computed(() => {
-  if (!sizesInput.value) return 0;
-  return sizesInput.value
-    .split(',')
-    .map(s => s.trim())
-    .filter(s => s.length > 0).length;
-});
+const openSellModal = (item, size, index) => {
+  selectedSellItem.value = item;
+  selectedSize.value = size;
+  selectedSizeIndex.value = index;
+  showSellModal.value = true;
+};
+
+const confirmSell = async () => {
+  if (!selectedSellItem.value) return;
+  selling.value = true;
+
+  const updatedSizes = [...selectedSellItem.value.sizes];
+  updatedSizes.splice(selectedSizeIndex.value, 1);
+
+  const payload = {
+    group_id: selectedSellItem.value.group_id,
+    models_id: selectedSellItem.value.models_id,
+    sizes: updatedSizes,
+    residual: updatedSizes.length,
+    price: selectedSellItem.value.price,
+    active: selectedSellItem.value.active
+  };
+
+  try {
+    await axios.put(`${API_URL}/${selectedSellItem.value.id}`, payload);
+    showSellModal.value = false;
+    fetchItems(pagination.current_page);
+  } catch (err) {
+    console.error('Помилка при продажу:', err);
+  } finally {
+    selling.value = false;
+  }
+};
 
 const fetchFormData = async () => {
   try {
@@ -337,50 +489,9 @@ const fetchItems = async (page = 1) => {
     pagination.current_page = res.data.current_page;
     pagination.last_page = res.data.last_page;
   } catch (err) {
-    console.error('Помилка завантаження складських залишків:', err);
+    console.error('Помилка складових:', err);
   } finally {
     loading.value = false;
-  }
-};
-
-// 1. Відкриття діалогу продажу розміру
-const confirmSellSize = (item, size) => {
-  itemToSell.value = item;
-  sizeToSell.value = size;
-  showSellModal.value = true;
-};
-
-// 2. Обробка продажу та оновлення на сервері
-const processSellSize = async () => {
-  if (!itemToSell.value || !sizeToSell.value) return;
-
-  selling.value = true;
-
-  // Видаляємо лише ПЕРШЕ входження даного розміру
-  const currentSizes = [...(itemToSell.value.sizes || [])];
-  const targetIndex = currentSizes.indexOf(sizeToSell.value);
-
-  if (targetIndex !== -1) {
-    currentSizes.splice(targetIndex, 1);
-  }
-
-  const updatedPayload = {
-    group_id: itemToSell.value.group_id,
-    models_id: itemToSell.value.models_id,
-    price: itemToSell.value.price,
-    active: itemToSell.value.active,
-    sizes: currentSizes,
-    residual: currentSizes.length // новий залишок
-  };
-
-  try {
-    await axios.put(`${API_URL}/${itemToSell.value.id}`, updatedPayload);
-    showSellModal.value = false;
-    fetchItems(pagination.current_page); // Оновлюємо списки
-  } catch (err) {
-    console.error('Помилка виконання продажу:', err);
-  } finally {
-    selling.value = false;
   }
 };
 
@@ -393,7 +504,7 @@ const openModal = (item = null) => {
     form.models_id = item.models_id;
     form.price = item.price ?? 0;
     form.active = Boolean(item.active);
-    sizesInput.value = item.sizes ? item.sizes.join(', ') : '';
+    selectedSizesList.value = item.sizes ? [...item.sizes] : [];
   } else {
     isEditing.value = false;
     currentId.value = null;
@@ -401,7 +512,7 @@ const openModal = (item = null) => {
     form.models_id = '';
     form.price = 0;
     form.active = true;
-    sizesInput.value = '';
+    selectedSizesList.value = [];
   }
   showModal.value = true;
 };
@@ -414,13 +525,8 @@ const saveItem = async () => {
   saving.value = true;
   errors.value = {};
 
-  const parsedSizes = sizesInput.value
-    .split(',')
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
-
-  form.sizes = parsedSizes;
-  form.residual = parsedSizes.length;
+  form.sizes = selectedSizesList.value;
+  form.residual = selectedSizesList.value.length;
 
   try {
     if (isEditing.value) {
@@ -442,7 +548,7 @@ const saveItem = async () => {
 };
 
 const deleteItem = async (id) => {
-  if (!confirm('Видалити цю модель зі складу?')) return;
+  if (!confirm('Видалити цей запис?')) return;
   try {
     await axios.delete(`${API_URL}/${id}`);
     fetchItems(pagination.current_page);
@@ -458,24 +564,87 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.shoe-icon-wrapper {
-  width: 42px;
-  height: 42px;
-  font-size: 1.3rem;
+.app-wrapper {
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.hover-card {
-  transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+/* Вкладки Груп */
+.group-tabs::-webkit-scrollbar {
+  display: none;
+}
+.group-tabs {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.size-btn {
-  transition: all 0.15s ease;
+.nav-item-btn {
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+/* Таблиця */
+.custom-stylish-table {
+  font-size: 0.875rem;
+}
+
+.cell-model {
+  width: 32%;
+  min-width: 120px;
+}
+
+.cell-sizes {
+  white-space: normal !important;
+}
+
+/* Баджі розмірів у таблиці */
+.size-badge {
+  cursor: pointer;
   font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease-in-out;
 }
 
-.size-btn:hover, .size-btn:active {
-  background-color: #198754 !important;
+.size-badge:hover {
+  transform: scale(1.08);
+  background-color: #0d6efd !important;
   color: #fff !important;
-  border-color: #198754 !important;
+}
+
+/* Кнопки вибору розмірів у модалці */
+.size-picker-btn {
+  width: 40px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.min-height-sizes {
+  min-height: 48px;
+}
+
+/* Обрані розміри у модалці (для видалення) */
+.size-selected-badge {
+  cursor: pointer;
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  transition: opacity 0.15s ease;
+}
+
+.size-selected-badge:hover {
+  opacity: 0.8;
+}
+
+.action-dots-btn {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.placeholder-light::placeholder {
+  color: #a0a0a0;
 }
 </style>
