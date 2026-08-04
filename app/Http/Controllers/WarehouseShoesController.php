@@ -48,7 +48,18 @@ class WarehouseShoesController extends Controller
             'active' => 'boolean',
         ]);
 
-        $item = WarehouseShoes::create($validated);
+        // $item = WarehouseShoes::create($validated);
+        $item = WarehouseShoes::updateOrCreate([
+            'models_id' => $validated['models_id'],
+            'group_id' => $validated['group_id'],
+        ],[
+            'models_id' => $validated['models_id'],
+            'group_id' => $validated['group_id'],
+            'sizes' => $validated['sizes'],
+            'residual' => $validated['residual'],
+            'price' => $validated['price'],
+            'active' => $validated['active'],
+        ]);
 
         return response()->json([
             'message' => 'Запис успішно додано',
