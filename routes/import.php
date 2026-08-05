@@ -15,6 +15,12 @@ Route::post($prefixRoute.'/csv', [ImportController::class, 'uploadProductExcel']
 ->name('import.product.csv');
 
 
+//uploadModelsShoesExcel
+
+Route::post($prefixRoute.'/shoes/models/csv', [ImportController::class, 'uploadModelsShoesExcel'])
+->name('import.models.csv');
+
+
 $prefixRoute = null;
 $nameAlias = null;
 

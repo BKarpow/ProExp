@@ -10,6 +10,7 @@ use App\Models\DateProduct;
 use Illuminate\Support\Facades\Auth;
 use App\Imports\DateProductImport;
 use App\Imports\ImportProductList;
+use App\Imports\ShoesModels;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ImportController extends Controller
@@ -134,6 +135,21 @@ class ImportController extends Controller
 
         // Один рядок для всього імпорту
         Excel::import(new ImportProductList, $request->file('file'));
+
+        return back()->with('status', 'CSV Список продуктів успішно імпортовано!');
+    }
+
+    public function uploadModelsShoesExcel(Request $request)
+    {
+        // dd($request);
+         $d = $request->validate([
+            'file1' => 'required|mimes:xlsx,xls,csv|max:2048',
+            'groupId' => 'required|integer|exists:group_shoes,id'
+        ]);
+        
+
+        // Один рядок для всього імпорту
+        Excel::import(new ShoesModels($d["groupId"]), $request->file('file1'));
 
         return back()->with('status', 'CSV Список продуктів успішно імпортовано!');
     }

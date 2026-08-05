@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewDateProductMail;
+use App\Models\GroupShoes;
 
 
 class AdminController extends Controller
@@ -58,7 +59,10 @@ class AdminController extends Controller
 
     public function optionsPage()
     {
-        return view('admin.options');
+
+        return view('admin.options', [
+            'groups' => GroupShoes::select('id', 'name')->orderBy('name', 'asc')->get()
+        ]);
     }
 
     public function sendTestTelegramExps(Request $request)
