@@ -110,7 +110,7 @@
                         :key="idx" 
                         class="badge size-badge shadow-sm"
                         :class="isDarkMode ? 'bg-secondary text-light border border-dark' : 'bg-light text-dark border'"
-                        @click="openSellModal(item, size, idx)"
+                        @click="openSellModal(item, size, idx, item.price)"
                         title="Натисніть щоб продати цей розмір"
                       >
                         {{ size }}
@@ -188,6 +188,9 @@
               <div class="fs-2 mb-1">🛍️</div>
               <h6 class="fw-bold mb-1">Продати розмір {{ selectedSize }}?</h6>
               <p class="small text-muted mb-3">{{ selectedSellItem?.model?.name }}</p>
+              <div class="mb-2">
+                <input type="text" class="form-control" v-model="salPrice" />
+              </div>
               <div class="d-grid gap-2">
                 <button 
                   type="button" 
@@ -348,7 +351,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 
 const API_URL = '/rapi/warehouse-shoes';
@@ -381,6 +384,7 @@ const saving = ref(false);
 const showModal = ref(false);
 const isEditing = ref(false);
 const currentId = ref(null);
+const salPrice = ref(0);
 
 // Динамічний масив для вибору розмірів у формі
 const selectedSizesList = ref([]);
@@ -410,6 +414,10 @@ const form = reactive({
 
 const errors = ref({});
 
+// watch(salPrice, (n, o) => {
+//   salPrice.value = String(salPrice.value) + " грн.";
+// });
+
 // Логіка додавання/видалення розміру кнопками
 const addSize = (size) => {
   selectedSizesList.value.push(String(size));
@@ -437,7 +445,8 @@ const filteredItems = computed(() => {
   return result;
 });
 
-const openSellModal = (item, size, index) => {
+const openSellModal = (item, size, index, price) => {
+  salPrice.value = price;
   selectedSellItem.value = item;
   selectedSize.value = size;
   selectedSizeIndex.value = index;

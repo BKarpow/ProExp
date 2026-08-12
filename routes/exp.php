@@ -94,7 +94,7 @@ Route::get($prefixRoute.'/api/get/expired', [DateProductController::class, 'getL
     //getListExpiredProductsEnd4Days
 
 Route::get($prefixRoute.'/api/get/expired/filter', [DateProductController::class, 'getListExpiredProductsEndFilter'])
-    ->name('date.delete.from.group');
+    ->name('date.get.expired.filter');
 
 //deleteAllDateFromGroup
 

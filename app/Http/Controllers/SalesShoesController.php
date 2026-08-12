@@ -29,7 +29,16 @@ class SalesShoesController extends Controller
      */
     public function store(StoreSalesShoesRequest $request)
     {
-        //
+        $s = new SalesShoes();
+        $s->user_id = $request->user()->id;
+        $s->models_id = $request->models_id;
+        $s->size = $request->size;
+        $s->price = $request->price;
+        $s->save();
+        return response()->json([
+            'status' => true,
+            'salId' => $s->id,
+        ]);
     }
 
     /**
