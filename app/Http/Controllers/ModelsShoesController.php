@@ -7,6 +7,7 @@ use App\Http\Requests\StoreModelsShoesRequest;
 use App\Http\Requests\UpdateModelsShoesRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Http\Resources\ShoesModelsResource;
 
 class ModelsShoesController extends Controller
 {
@@ -19,6 +20,16 @@ class ModelsShoesController extends Controller
         $groups = ModelsShoes::latest('id')->paginate(10);
 
         return response()->json($groups);
+    }
+
+    public function getAll()
+    {
+        // Замініть GroupShoes на вашу модель, якщо вона називається інакше
+        //
+
+        $groups = ModelsShoes::whereActive(true)->orderBy('name', 'asc')->get();
+
+        return ShoesModelsResource::collection($groups);
     }
 
     /**
@@ -57,7 +68,7 @@ class ModelsShoesController extends Controller
             'desc' => 'nullable|string|max:255',
         ]);
          $groupShoes = ModelsShoes::findOrFail( (int)$groupShoesId);
-        
+
         $groupShoes->update($validated);
 
         return response()->json([
@@ -70,7 +81,7 @@ class ModelsShoesController extends Controller
      * Видалення групи.
      */
     public function destroy($groupShoesId): JsonResponse
-    {   
+    {
         $groupShoes = ModelsShoes::findOrFail( (int)$groupShoesId);
         $groupShoes->delete();
 

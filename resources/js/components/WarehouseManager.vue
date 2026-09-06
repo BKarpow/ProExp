@@ -1,17 +1,18 @@
 <template>
   <div :class="['app-wrapper p-2 p-md-3', isDarkMode ? 'bg-dark text-light' : 'bg-light text-dark']">
     <div class="container-fluid max-width-lg">
-      
+
       <!-- Шапка: Назва + Пошук + Темний режим + Додати -->
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <h4 class="fw-bold m-0 d-flex align-items-center gap-2">
           👟 Склад взуття
         </h4>
 
+
         <div class="d-flex align-items-center gap-2">
           <!-- Перемикач темної/світлої теми -->
-          <button 
-            type="button" 
+          <button
+            type="button"
             class="btn btn-sm shadow-sm"
             :class="isDarkMode ? 'btn-outline-light' : 'btn-outline-dark'"
             @click="toggleTheme"
@@ -25,23 +26,24 @@
           </button>
         </div>
       </div>
+      <NavShoesMenu/>
 
-      <!-- Пошуковий блок -->
+      <!-- Пошуковий блок (по таблиці) -->
       <div class="mb-3">
         <div class="input-group input-group-sm shadow-sm">
           <span class="input-group-text border-0" :class="isDarkMode ? 'bg-secondary text-light' : 'bg-white text-muted'">🔍</span>
-          <input 
-            v-model="searchQuery" 
-            type="text" 
+          <input
+            v-model="searchQuery"
+            type="text"
             class="form-control border-0"
             :class="isDarkMode ? 'bg-secondary text-light placeholder-light' : 'bg-white text-dark'"
             placeholder="Пошук по моделі..."
           />
-          <button 
-            v-if="searchQuery" 
-            class="btn border-0" 
+          <button
+            v-if="searchQuery"
+            class="btn border-0"
             :class="isDarkMode ? 'bg-secondary text-light' : 'bg-white text-muted'"
-            type="button" 
+            type="button"
             @click="searchQuery = ''"
           >
             ✕
@@ -49,10 +51,10 @@
         </div>
       </div>
 
-      <!-- Динамічні Вкладки для Груп (Темний текст для неактивних у Dark Mode) -->
+      <!-- Динамічні Вкладки для Груп -->
       <ul class="nav nav-pills mb-3 group-tabs gap-1 flex-nowrap overflow-auto pb-1">
         <li class="nav-item">
-          <button 
+          <button
             class="nav-item-btn rounded-pill px-3 py-1 border-0 fw-bold small"
             :class="selectedGroupId === null ? 'btn-primary text-white' : (isDarkMode ? 'bg-light text-dark' : 'bg-white text-dark')"
             @click="selectGroup(null)"
@@ -61,7 +63,7 @@
           </button>
         </li>
         <li v-for="group in groups" :key="group.id" class="nav-item">
-          <button 
+          <button
             class="nav-item-btn rounded-pill px-3 py-1 border-0 fw-bold small"
             :class="selectedGroupId === group.id ? 'btn-primary text-white' : (isDarkMode ? 'bg-light text-dark' : 'bg-white text-dark')"
             @click="selectGroup(group.id)"
@@ -79,7 +81,7 @@
       <!-- Компактна Таблиця -->
       <div v-else class="card border-0 shadow-sm rounded-3 overflow-hidden" :class="isDarkMode ? 'bg-dark' : 'bg-white'">
         <div class="table-responsive">
-          <table 
+          <table
             class="table align-middle text-nowrap mb-0 custom-stylish-table"
             :class="isDarkMode ? 'table-dark table-hover' : 'table-hover'"
           >
@@ -91,7 +93,7 @@
               </tr>
 
               <tr v-else v-for="item in filteredItems" :key="item.id">
-                <!-- Колонка 1: Модель та Ціна під нею (без категорії) -->
+                <!-- Колонка 1: Модель та Ціна -->
                 <td class="px-3 py-2 cell-model">
                   <div class="fw-bold text-truncate" style="max-width: 140px;" :title="item.model?.name">
                     {{ item.model?.name || '—' }}
@@ -101,13 +103,13 @@
                   </small>
                 </td>
 
-                <!-- Колонка 2: Розміри (Максимум місця) -->
+                <!-- Колонка 2: Розміри -->
                 <td class="px-2 py-2 cell-sizes">
                   <div class="d-flex flex-wrap gap-1 align-items-center">
                     <template v-if="item.sizes && item.sizes.length">
-                      <span 
-                        v-for="(size, idx) in item.sizes" 
-                        :key="idx" 
+                      <span
+                        v-for="(size, idx) in item.sizes"
+                        :key="idx"
                         class="badge size-badge shadow-sm"
                         :class="isDarkMode ? 'bg-secondary text-light border border-dark' : 'bg-light text-dark border'"
                         @click="openSellModal(item, size, idx, item.price)"
@@ -120,20 +122,20 @@
                   </div>
                 </td>
 
-                <!-- Колонка 3: Випадаюче меню дій "..." -->
+                <!-- Колонка 3: Випадаюче меню дій -->
                 <td class="px-2 py-2 text-end cell-actions" style="width: 1%;">
                   <div class="dropdown">
-                    <button 
+                    <button
                       class="btn btn-sm border-0 px-2 py-0 text-secondary fw-bold rounded-circle action-dots-btn"
-                      type="button" 
-                      data-bs-toggle="dropdown" 
+                      type="button"
+                      data-bs-toggle="dropdown"
                       aria-expanded="false"
                       title="Дії"
                     >
                       •••
                     </button>
-                    <ul 
-                      class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3" 
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3"
                       :class="isDarkMode ? 'dropdown-menu-dark bg-secondary' : ''"
                     >
                       <li>
@@ -157,7 +159,7 @@
 
       <!-- Пагінація -->
       <div v-if="pagination.last_page > 1" class="d-flex justify-content-between align-items-center mt-3">
-        <button 
+        <button
           class="btn btn-sm rounded-pill px-3 shadow-sm"
           :class="isDarkMode ? 'btn-outline-light' : 'btn-outline-primary'"
           :disabled="pagination.current_page === 1"
@@ -170,7 +172,7 @@
           {{ pagination.current_page }} / {{ pagination.last_page }}
         </span>
 
-        <button 
+        <button
           class="btn btn-sm rounded-pill px-3 shadow-sm"
           :class="isDarkMode ? 'btn-outline-light' : 'btn-outline-primary'"
           :disabled="pagination.current_page === pagination.last_page"
@@ -192,18 +194,18 @@
                 <input type="text" class="form-control" v-model="salPrice" />
               </div>
               <div class="d-grid gap-2">
-                <button 
-                  type="button" 
-                  class="btn btn-sm btn-success rounded-pill fw-bold shadow-sm" 
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success rounded-pill fw-bold shadow-sm"
                   :disabled="selling"
                   @click="confirmSell"
                 >
                   <span v-if="selling" class="spinner-border spinner-border-sm me-1"></span>
                   Продано
                 </button>
-                <button 
-                  type="button" 
-                  class="btn btn-sm btn-light rounded-pill text-muted" 
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light rounded-pill text-muted"
                   @click="showSellModal = false"
                 >
                   Скасувати
@@ -215,30 +217,30 @@
       </div>
 
       <!-- Модальне вікно (Створення / Редагування) -->
-      <div v-if="showModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
+      <div v-if="showModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);" @click="isModelDropdownOpen = false">
         <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content rounded-4 border-0 shadow-lg" :class="isDarkMode ? 'bg-dark text-light' : ''">
+          <div class="modal-content rounded-4 border-0 shadow-lg" :class="isDarkMode ? 'bg-dark text-light' : ''" @click.stop>
             <div class="modal-header border-bottom-0 pb-0">
               <h5 class="modal-title fw-bold">
                 {{ isEditing ? 'Редагувати' : 'Новий товар' }}
               </h5>
-              <button 
-                type="button" 
-                class="btn-close" 
-                :class="isDarkMode ? 'btn-close-white' : ''" 
+              <button
+                type="button"
+                class="btn-close"
+                :class="isDarkMode ? 'btn-close-white' : ''"
                 @click="closeModal"
               ></button>
             </div>
             <form @submit.prevent="saveItem">
               <div class="modal-body">
-                
+
                 <!-- Група -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold">Група взуття *</label>
-                  <select 
-                    v-model="form.group_id" 
-                    class="form-select rounded-3" 
-                    :class="[isDarkMode ? 'bg-dark text-light border-secondary' : '', { 'is-invalid': errors.group_id }]" 
+                  <select
+                    v-model="form.group_id"
+                    class="form-select rounded-3"
+                    :class="[isDarkMode ? 'bg-dark text-light border-secondary' : '', { 'is-invalid': errors.group_id }]"
                     required
                   >
                     <option value="" disabled>Оберіть групу...</option>
@@ -249,36 +251,116 @@
                   <div v-if="errors.group_id" class="invalid-feedback">{{ errors.group_id[0] }}</div>
                 </div>
 
-                <!-- Модель -->
-                <div class="mb-3">
-                  <label class="form-label small fw-bold">Модель взуття *</label>
-                  <select 
-                    v-model="form.models_id" 
-                    class="form-select rounded-3" 
-                    :class="[isDarkMode ? 'bg-dark text-light border-secondary' : '', { 'is-invalid': errors.models_id }]" 
-                    required
-                  >
-                    <option value="" disabled>Оберіть модель...</option>
-                    <option v-for="model in models" :key="model.id" :value="model.id">
-                      {{ model.name }}
-                    </option>
-                  </select>
-                  <div v-if="errors.models_id" class="invalid-feedback">{{ errors.models_id[0] }}</div>
+                <!-- Модель (Об'єднана із інтегрованим динамічним пошуком) -->
+                <div class="mb-3 position-relative">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label small fw-bold m-0">Модель взуття *</label>
+                    <button
+                      type="button"
+                      class="btn btn-link btn-sm p-0 text-decoration-none small fw-bold"
+                      @click="toggleCreateModel"
+                    >
+                      {{ showCreateModelInput ? '✕ Скасувати' : '➕ Створити нову модель' }}
+                    </button>
+                  </div>
+
+                  <!-- Поле для швидкого створення моделі -->
+                  <div v-if="showCreateModelInput" class="p-2 mb-2 rounded-3 border" :class="isDarkMode ? 'bg-secondary bg-opacity-25 border-secondary' : 'bg-light'">
+                    <div class="input-group input-group-sm">
+                      <input
+                        v-model="newModelName"
+                        type="text"
+                        class="form-control rounded-start-2"
+                        :class="[isDarkMode ? 'bg-dark text-light border-secondary' : '', { 'is-invalid': modelError }]"
+                        placeholder="Введіть назву моделі..."
+                        @keyup.enter.prevent="createNewModel"
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-success fw-bold px-3"
+                        :disabled="creatingModel || !newModelName.trim()"
+                        @click="createNewModel"
+                      >
+                        <span v-if="creatingModel" class="spinner-border spinner-border-sm me-1"></span>
+                        Зберегти
+                      </button>
+                    </div>
+                    <div v-if="modelError" class="text-danger small mt-1">{{ modelError }}</div>
+                  </div>
+
+                  <!-- Об'єднаний селектор-пошук -->
+                  <div class="position-relative">
+                    <button
+                      type="button"
+                      class="form-select text-start d-flex justify-content-between align-items-center rounded-3"
+                      :class="[isDarkMode ? 'bg-dark text-light border-secondary' : '', { 'is-invalid': errors.models_id }]"
+                      @click.stop="toggleModelDropdown"
+                    >
+                      <span class="text-truncate">
+                        {{ selectedModelName || 'Оберіть модель зі списку...' }}
+                      </span>
+                    </button>
+
+                    <!-- Випадаючий список із динамічним пошуком всередині -->
+                    <div
+                      v-if="isModelDropdownOpen"
+                      class="dropdown-menu show w-100 p-2 shadow-lg border mt-1 position-absolute top-100 start-0 z-3"
+                      :class="isDarkMode ? 'dropdown-menu-dark bg-secondary' : 'bg-white'"
+                      @click.stop
+                    >
+                      <div class="input-group input-group-sm mb-2">
+                        <span class="input-group-text border-0" :class="isDarkMode ? 'bg-dark text-light' : 'bg-light text-muted'">🔍</span>
+                        <input
+                          v-model="modelSearchQuery"
+                          type="text"
+                          class="form-control border-0"
+                          :class="isDarkMode ? 'bg-dark text-light placeholder-light' : 'bg-light text-dark'"
+                          placeholder="Динамічний пошук..."
+                          ref="modelSearchInput"
+                        />
+                        <button
+                          v-if="modelSearchQuery"
+                          class="btn border-0"
+                          :class="isDarkMode ? 'bg-dark text-light' : 'bg-light text-muted'"
+                          type="button"
+                          @click="modelSearchQuery = ''"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <ul class="list-unstyled mb-0 overflow-auto style-scrollbar" style="max-height: 180px;">
+                        <li v-if="filteredModels.length === 0" class="text-center py-2 text-muted small">
+                          Нічого не знайдено
+                        </li>
+                        <li
+                          v-for="model in filteredModels"
+                          :key="model.id"
+                          class="dropdown-item rounded px-2 py-1 small cursor-pointer d-flex justify-content-between align-items-center"
+                          :class="{ 'active': form.models_id === model.id }"
+                          @click="selectModel(model)"
+                        >
+                          <span>{{ model.name }}</span>
+                          <span v-if="form.models_id === model.id" class="small fw-bold">✓</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div v-if="errors.models_id" class="invalid-feedback d-block">{{ errors.models_id[0] }}</div>
                 </div>
 
-                <!-- Зручний вибір розмірів КНОПКАМИ (35 - 46) -->
+                <!-- Вибір розмірів кнопками -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold d-flex justify-content-between align-items-center">
                     <span>Натисніть для додавання розміру (35-46):</span>
                     <span class="badge bg-primary">Усього: {{ selectedSizesList.length }} шт.</span>
                   </label>
-                  
-                  <!-- Кнопки швидкого вибору розміру -->
+
                   <div class="d-flex flex-wrap gap-1 mb-2">
-                    <button 
-                      v-for="s in availableSizes" 
-                      :key="s" 
-                      type="button" 
+                    <button
+                      v-for="s in availableSizes"
+                      :key="s"
+                      type="button"
                       class="btn btn-sm btn-outline-primary rounded-3 size-picker-btn fw-bold"
                       @click="addSize(s)"
                     >
@@ -286,17 +368,16 @@
                     </button>
                   </div>
 
-                  <!-- Список доданих розмірів з можливістю швидкого видалення -->
-                  <div 
+                  <div
                     class="p-2 rounded-3 border min-height-sizes d-flex flex-wrap gap-1 align-items-center"
                     :class="isDarkMode ? 'bg-secondary bg-opacity-25 border-secondary' : 'bg-light'"
                   >
                     <span v-if="selectedSizesList.length === 0" class="small text-muted fst-italic">
                       Натисніть кнопки вище, щоб додати розміри...
                     </span>
-                    <span 
-                      v-for="(size, idx) in selectedSizesList" 
-                      :key="idx" 
+                    <span
+                      v-for="(size, idx) in selectedSizesList"
+                      :key="idx"
                       class="badge bg-primary rounded-pill size-selected-badge"
                       @click="removeSize(idx)"
                       title="Натисніть щоб видалити цей розмір"
@@ -309,22 +390,22 @@
                 <!-- Ціна -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold">Ціна (грн)</label>
-                  <input 
-                    v-model.number="form.price" 
-                    type="number" 
-                    min="0" 
-                    class="form-control rounded-3" 
-                    :class="isDarkMode ? 'bg-dark text-light border-secondary' : ''" 
+                  <input
+                    v-model.number="form.price"
+                    type="number"
+                    min="0"
+                    class="form-control rounded-3"
+                    :class="isDarkMode ? 'bg-dark text-light border-secondary' : ''"
                   />
                 </div>
 
                 <!-- Активність -->
                 <div class="form-check form-switch mb-2">
-                  <input 
-                    v-model="form.active" 
-                    class="form-check-input" 
-                    type="checkbox" 
-                    role="switch" 
+                  <input
+                    v-model="form.active"
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
                     id="activeSwitch"
                   />
                   <label class="form-check-label small fw-bold" for="activeSwitch">
@@ -337,7 +418,7 @@
               <div class="modal-footer border-top-0 pt-0">
                 <button type="button" class="btn btn-sm btn-light rounded-pill px-3" @click="closeModal">Скасувати</button>
                 <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4" :disabled="saving">
-                  <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span> 
+                  <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
                   Зберегти
                 </button>
               </div>
@@ -351,15 +432,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, watch, nextTick, onMounted } from 'vue';
 import axios from 'axios';
+import NavShoesMenu from './NavShoesMenu.vue';
 
 const API_URL = '/rapi/warehouse-shoes';
+const API_SALES_URL = '/rapi/sales-shoes';
+const API_MODELS_URL = '/rapi/models-shoes';
 
-// Доступні розміри для вибору кнопками
-const availableSizes = [35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46];
+const props = defineProps({
+  userId: {
+    type: Number,
+    required: true,
+    default: null
+  }
+});
 
-// 1. Збереження теми в localStorage
+const availableSizes = [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46];
+
 const isDarkMode = ref(localStorage.getItem('warehouse_theme') === 'dark');
 
 const toggleTheme = () => {
@@ -367,7 +457,6 @@ const toggleTheme = () => {
   localStorage.setItem('warehouse_theme', isDarkMode.value ? 'dark' : 'light');
 };
 
-// 2. Збереження обраної вкладки в localStorage
 const savedGroup = localStorage.getItem('warehouse_selected_group');
 const selectedGroupId = ref(savedGroup !== null ? (savedGroup === 'null' ? null : Number(savedGroup)) : null);
 
@@ -386,10 +475,32 @@ const isEditing = ref(false);
 const currentId = ref(null);
 const salPrice = ref(0);
 
-// Динамічний масив для вибору розмірів у формі
+// Стан випадаючого селектора з пошуком
+const isModelDropdownOpen = ref(false);
+const modelSearchQuery = ref('');
+const modelSearchInput = ref(null);
+
+// Фокусування на поле введення після відкриття
+watch(isModelDropdownOpen, (isOpen) => {
+  if (isOpen) {
+    nextTick(() => {
+      modelSearchInput.value?.focus();
+    });
+  }
+});
+
+const toggleModelDropdown = () => {
+  isModelDropdownOpen.value = !isModelDropdownOpen.value;
+};
+
+// Створення нової моделі
+const showCreateModelInput = ref(false);
+const newModelName = ref('');
+const creatingModel = ref(false);
+const modelError = ref('');
+
 const selectedSizesList = ref([]);
 
-// Модалка продажу
 const showSellModal = ref(false);
 const selling = ref(false);
 const selectedSellItem = ref(null);
@@ -414,17 +525,68 @@ const form = reactive({
 
 const errors = ref({});
 
-// watch(salPrice, (n, o) => {
-//   salPrice.value = String(salPrice.value) + " грн.";
-// });
+// Динамічне фільтрування моделей
+const filteredModels = computed(() => {
+  if (!modelSearchQuery.value.trim()) {
+    return models.value;
+  }
+  const query = modelSearchQuery.value.toLowerCase().trim();
+  return models.value.filter(m => m.name && m.name.toLowerCase().includes(query));
+});
 
-// Логіка додавання/видалення розміру кнопками
+// Назва вибраної моделі
+const selectedModelName = computed(() => {
+  const found = models.value.find(m => m.id === form.models_id);
+  return found ? found.name : '';
+});
+
+const selectModel = (model) => {
+  form.models_id = model.id;
+  isModelDropdownOpen.value = false;
+  modelSearchQuery.value = '';
+};
+
 const addSize = (size) => {
   selectedSizesList.value.push(String(size));
 };
 
 const removeSize = (index) => {
   selectedSizesList.value.splice(index, 1);
+};
+
+const toggleCreateModel = () => {
+  showCreateModelInput.value = !showCreateModelInput.value;
+  newModelName.value = '';
+  modelError.value = '';
+};
+
+const createNewModel = async () => {
+  if (!newModelName.value.trim()) return;
+
+  creatingModel.value = true;
+  modelError.value = '';
+
+  try {
+    const res = await axios.post(API_MODELS_URL, {
+      name: newModelName.value.trim()
+    });
+
+    const createdModel = res.data.data || res.data;
+
+    models.value.push(createdModel);
+    form.models_id = createdModel.id;
+
+    newModelName.value = '';
+    showCreateModelInput.value = false;
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.message) {
+      modelError.value = err.response.data.message;
+    } else {
+      modelError.value = 'Помилка при створенні моделі.';
+    }
+  } finally {
+    creatingModel.value = false;
+  }
 };
 
 const filteredItems = computed(() => {
@@ -453,12 +615,27 @@ const openSellModal = (item, size, index, price) => {
   showSellModal.value = true;
 };
 
+const saveSale = async (updatedSizes) => {
+  const payload = {
+    models_id: selectedSellItem.value.models_id,
+    size: updatedSizes,
+    price: selectedSellItem.value.price || salPrice.value || 0,
+    user_id: props.userId,
+  };
+  try {
+    await axios.post(`${API_SALES_URL}/`, payload);
+  } catch (err) {
+    console.error('Помилка при запису продажу:', err);
+  }
+};
+
 const confirmSell = async () => {
   if (!selectedSellItem.value) return;
   selling.value = true;
 
   const updatedSizes = [...selectedSellItem.value.sizes];
   updatedSizes.splice(selectedSizeIndex.value, 1);
+  const selSize = selectedSellItem.value.sizes[selectedSizeIndex.value];
 
   const payload = {
     group_id: selectedSellItem.value.group_id,
@@ -466,9 +643,11 @@ const confirmSell = async () => {
     sizes: updatedSizes,
     residual: updatedSizes.length,
     price: selectedSellItem.value.price,
+    user_id: props.userId,
     active: selectedSellItem.value.active
   };
 
+  saveSale(selSize);
   try {
     await axios.put(`${API_URL}/${selectedSellItem.value.id}`, payload);
     showSellModal.value = false;
@@ -506,6 +685,12 @@ const fetchItems = async (page = 1) => {
 
 const openModal = (item = null) => {
   errors.value = {};
+  showCreateModelInput.value = false;
+  newModelName.value = '';
+  modelError.value = '';
+  modelSearchQuery.value = '';
+  isModelDropdownOpen.value = false;
+
   if (item) {
     isEditing.value = true;
     currentId.value = item.id;
@@ -578,7 +763,6 @@ onMounted(() => {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Вкладки Груп */
 .group-tabs::-webkit-scrollbar {
   display: none;
 }
@@ -592,7 +776,6 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-/* Таблиця */
 .custom-stylish-table {
   font-size: 0.875rem;
 }
@@ -606,7 +789,6 @@ onMounted(() => {
   white-space: normal !important;
 }
 
-/* Баджі розмірів у таблиці */
 .size-badge {
   cursor: pointer;
   font-size: 0.8rem;
@@ -621,7 +803,6 @@ onMounted(() => {
   color: #fff !important;
 }
 
-/* Кнопки вибору розмірів у модалці */
 .size-picker-btn {
   width: 40px;
   height: 34px;
@@ -636,7 +817,6 @@ onMounted(() => {
   min-height: 48px;
 }
 
-/* Обрані розміри у модалці (для видалення) */
 .size-selected-badge {
   cursor: pointer;
   padding: 5px 10px;
@@ -655,5 +835,17 @@ onMounted(() => {
 
 .placeholder-light::placeholder {
   color: #a0a0a0;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.style-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.style-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.4);
+  border-radius: 4px;
 }
 </style>

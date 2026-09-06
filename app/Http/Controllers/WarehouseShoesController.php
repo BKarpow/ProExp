@@ -7,9 +7,19 @@ use App\Models\GroupShoes;
 use App\Models\ModelsShoes;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Services\ShoeseSaveService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WarehouseShoesController extends Controller
 {
+
+    use ShoeseSaveService;
+
+    public function __construct()
+    {
+        // $this->middleware('auth');
+    }
     /**
      * Отримання списку залишків на складі з пагінацією та зв'язками.
      */
@@ -80,7 +90,6 @@ class WarehouseShoesController extends Controller
             'price' => 'nullable|integer|min:0',
             'active' => 'boolean',
         ]);
-
         $warehouseShoe->update($validated);
 
         return response()->json([
@@ -88,6 +97,8 @@ class WarehouseShoesController extends Controller
             'data' => $warehouseShoe->load(['group', 'model']),
         ]);
     }
+
+
 
     /**
      * Видалення запису.
@@ -105,4 +116,35 @@ class WarehouseShoesController extends Controller
     {
         return view('biz.warehouse');
     }
+
+    public function clearTable(): JsonResponse
+        {
+            try {
+                // Тимчасово вимикаємо перевірку зовнішніх ключів (щоб уникнути помилок CASCADE/FOREIGN KEY)
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+                // Скидаємо всю таблицю (і обнуляємо ID)
+                WarehouseShoes::truncate();
+
+                // Також можна використати через Фасад DB, якщо без моделі:
+                // DB::table('date_products')->truncate();
+
+                // Вмикаємо перевірку назад
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Таблицю успішно повністю очищено!',
+                ], 200);
+
+            } catch (Exception $e) {
+                // Переконаємося, що перевірка ключів увімкнеться у разі помилки
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Не вдалося очистити таблицю: ' . $e->getMessage(),
+                ], 500);
+            }
+        }
 }

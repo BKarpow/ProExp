@@ -64,6 +64,7 @@ import DetectPrices from './components/DetectPrices.vue';
 import CategoriesManager from './components/CategoriesManager.vue';
 import ModelsManager from './components/ModelsManager.vue';
 import WarehouseManager from './components/WarehouseManager.vue';
+import SalesShoesManager from './components/SalesShoesManager.vue';
 app.component('delete-btn', DeleteButton);
 app.component('input-date', InputDate);
 app.component('example-component', ExampleComponent);
@@ -89,6 +90,7 @@ app.component("detect-prices", DetectPrices);
 app.component("s-group", CategoriesManager);
 app.component("s-models", ModelsManager);
 app.component("s-warehouse", WarehouseManager);
+app.component("s-sales", SalesShoesManager);
 
 /**
  * The following block of code may be used to automatically register your

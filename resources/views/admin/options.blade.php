@@ -24,6 +24,10 @@
                                 <a href="{{route('admin.mail.telegram.test')}}" class="btn btn-success">
                                     Відправити в telegram те
                                 </a> <!-- /.btn btn-success -->
+
+                                <a href="{{route('shoes.warehouse.clear')}}" class="btn btn-success">
+                                    Очистити склад взуття
+                                </a> <!-- /.btn btn-success -->
                             </div>
                             <!-- /.btn-group -->
 
@@ -53,7 +57,7 @@
                                 <div class="mb-3">
                                     <label for="file1" class="form-label">Оберіть CSV файл</label>
                                         <input type="file" name="file1" id="file1" class="form-control" required>
-                                    
+
                                 </div>
                                 @error('file1')
                                     <div class="alert alert-warning">

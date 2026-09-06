@@ -5,6 +5,6 @@
 @endsection
 
 @section('content')
-    <s-warehouse :user-id="{{ Auth::id() }}"></s-warehouse>
 
+    <s-sales :user-id="{{ Auth::id() }}"></s-sales>
 @endsection

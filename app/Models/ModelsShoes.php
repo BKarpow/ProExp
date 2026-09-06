@@ -14,4 +14,10 @@ class ModelsShoes extends Model
         'name',
         'desc',
     ];
+
+public function group()
+{
+    return $this->hasOneThrough(GroupShoes::class, WarehouseShoes::class,
+    'models_id', 'group_id');
+}
 }

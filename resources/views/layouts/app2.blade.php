@@ -24,13 +24,11 @@
         <!-- /.container -->
     @endif
 
+
     <main >
         @yield('content')
     </main>
-    @if (!Route::is('date.create'))
-        <fab url="{{ route('date.create') }}"> </fab>
-    @endif
+
 </div>
 </body>
 </html>
-

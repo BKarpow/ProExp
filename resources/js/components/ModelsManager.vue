@@ -7,6 +7,8 @@
       </button>
     </div>
 
+    <NavShoesMenu/>
+
     <div class="table-responsive shadow-sm rounded">
       <table class="table table-hover table-striped align-middle mb-0">
         <thead class="table-dark">
@@ -33,18 +35,18 @@
           <tr v-else v-for="category in categories" :key="category.id">
             <td>{{ category.id }}</td>
             <td class="fw-bold">{{ category.name }}</td>
-            
+
             <td>{{ category.desc || '—' }}</td>
             <td class="text-end">
-              <button 
-                class="btn btn-sm btn-outline-warning me-2" 
+              <button
+                class="btn btn-sm btn-outline-warning me-2"
                 @click="openModal(category)"
                 title="Редагувати"
               >
                 ✏️
               </button>
-              <button 
-                class="btn btn-sm btn-outline-danger" 
+              <button
+                class="btn btn-sm btn-outline-danger"
                 @click="deleteCategory(category.id)"
                 title="Видалити"
               >
@@ -61,10 +63,10 @@
         <li class="page-item" :class="{ disabled: pagination.current_page === 1 }">
           <button class="page-link" @click="fetchCategories(pagination.current_page - 1)">Попередня</button>
         </li>
-        <li 
-          v-for="page in pagination.last_page" 
-          :key="page" 
-          class="page-item" 
+        <li
+          v-for="page in pagination.last_page"
+          :key="page"
+          class="page-item"
           :class="{ active: page === pagination.current_page }"
         >
           <button class="page-link" @click="fetchCategories(page)">{{ page }}</button>
@@ -88,23 +90,23 @@
             <div class="modal-body">
               <div class="mb-3">
                 <label class="form-label">Модель <span class="text-danger">*</span></label>
-                <input 
-                  v-model="form.name" 
-                  type="text" 
-                  class="form-control" 
+                <input
+                  v-model="form.name"
+                  type="text"
+                  class="form-control"
                   :class="{ 'is-invalid': errors.name }"
                   required
                 >
                 <div v-if="errors.name" class="invalid-feedback">{{ errors.name[0] }}</div>
               </div>
 
-              
+
 
               <div class="mb-3">
                 <label class="form-label">Опис</label>
-                <textarea 
-                  v-model="form.description" 
-                  class="form-control" 
+                <textarea
+                  v-model="form.description"
+                  class="form-control"
                   rows="3"
                   :class="{ 'is-invalid': errors.description }"
                 ></textarea>
@@ -128,6 +130,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
+import NavShoesMenu from './NavShoesMenu.vue';
 
 // Базовий URL вашого API (припустимо, що це /api/categories)
 const API_URL = '/rapi/shoes/models';
@@ -216,7 +219,7 @@ const saveCategory = async () => {
 // 4. Видалення (Destroy)
 const deleteCategory = async (id) => {
   if (!confirm('Ви дійсно бажаєте видалити цю групу товарів?')) return;
-  
+
   try {
     await axios.delete(`${API_URL}/${id}`);
     fetchCategories(pagination.current_page);

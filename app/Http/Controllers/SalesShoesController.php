@@ -1,75 +1,95 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\SalesShoes;
-use App\Http\Requests\StoreSalesShoesRequest;
-use App\Http\Requests\UpdateSalesShoesRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class SalesShoesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Отримати список усіх продажів з пагінацією та зв'язками.
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        //
+        $sales = SalesShoes::with(['model', 'user'])
+            ->latest()
+            ->paginate(15);
+
+        return response()->json($sales);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Зберегти новий запис про продаж.
      */
-    public function create()
+    public function store(Request $request): JsonResponse
     {
-        //
-    }
+        $validated = $request->validate([
+            'models_id' => 'required|exists:models_shoes,id',
+            'size'      => 'required|integer|max:60|min:20',
+            'price'     => 'required|integer|min:0',
+            'active'    => 'boolean',
+            // user_id можна передати з фронтенду або підтягнути з авторизації
+            'user_id'   => 'nullable|exists:users,id',
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreSalesShoesRequest $request)
-    {
-        $s = new SalesShoes();
-        $s->user_id = $request->user()->id;
-        $s->models_id = $request->models_id;
-        $s->size = $request->size;
-        $s->price = $request->price;
-        $s->save();
+        // Якщо user_id не передано явно в тілі запиту, беремо ID авторизованого користувача
+        $validated['user_id'] = $validated['user_id'] ?? $request->user()?->id;
+
+        $sale = SalesShoes::create($validated);
+        $sale->load(['model', 'user']);
+
         return response()->json([
-            'status' => true,
-            'salId' => $s->id,
+            'message' => 'Запис успішно створено',
+            'data'    => $sale,
+        ], 201);
+    }
+
+    /**
+     * Відобразити конкретний запис.
+     */
+    public function show(SalesShoes $salesShoe): JsonResponse
+    {
+        $salesShoe->load(['model', 'user']);
+
+        return response()->json($salesShoe);
+    }
+
+    /**
+     * Оновити існуючий запис про продаж.
+     */
+    public function update(Request $request, SalesShoes $salesShoe): JsonResponse
+    {
+        $validated = $request->validate([
+            'models_id' => 'sometimes|required|exists:models_shoes,id',
+            'size'      => 'sometimes|required|string|max:255',
+            'price'     => 'sometimes|required|integer|min:0',
+            'active'    => 'boolean',
+            'user_id'   => 'nullable|exists:users,id',
+        ]);
+
+        $salesShoe->update($validated);
+        $salesShoe->load(['model', 'user']);
+
+        return response()->json([
+            'message' => 'Запис успішно оновлено',
+            'data'    => $salesShoe,
         ]);
     }
 
     /**
-     * Display the specified resource.
+     * Видалити запис про продаж.
      */
-    public function show(SalesShoes $salesShoes)
+    public function destroy(SalesShoes $salesShoe): JsonResponse
     {
-        //
+        $salesShoe->delete();
+
+        return response()->json([
+            'message' => 'Запис успішно видалено',
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SalesShoes $salesShoes)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateSalesShoesRequest $request, SalesShoes $salesShoes)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(SalesShoes $salesShoes)
-    {
-        //
+    public function showSPA() {
+        return view('biz.sales');
     }
 }
