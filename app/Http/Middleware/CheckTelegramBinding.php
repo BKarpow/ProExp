@@ -19,8 +19,10 @@ class CheckTelegramBinding
     {
         // Перевіряємо, чи користувач авторизований
         // та чи ПУСТЕ поле telegram_id
+
         if ($request->user() && !$request->routeIs('telegram.bind')) {
-            if (!TelegramHandler::where('user_id', $request->user()->id)->exists()) {
+            if (!TelegramHandler::where('user_id', $request->user()->id)->exists() &&
+            !$request->user()->isManager()) {
 
                 return redirect()->route('telegram.bind')
                     ->with('warning', 'Будь ласка, прив’яжіть Telegram для продовження.');

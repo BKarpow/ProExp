@@ -18,10 +18,12 @@ use App\Http\Resources\SearchForBarcodeResource;
 use App\Models\NameProductUserAlias;
 use App\Models\ScreenDateProduct;
 use App\Http\Resources\DateProductResource;
+use App\Services\ServiceHandler;
 
 class DateProductController extends Controller
 {
     use BarcodeHandle;
+    use ServiceHandler;
 
     public function __construct()
     {
@@ -34,7 +36,7 @@ class DateProductController extends Controller
     {
         $products = Auth::user()->expProductsAll();
         $exps = Auth::user()->beforeExpProductsAll();
-        return view('exp.index', [
+        return view($this->getHomeViewPage(), [
             'data' => $products,
             'exps' => $exps
         ]);
@@ -402,7 +404,7 @@ class DateProductController extends Controller
 
     public function deleteAllDateFromGroup(Product $product)
     {
-        
+
         $d = DateProduct::where('group_id', Auth::user()->configDefaultGroup())
         ->whereProductId($product->id)->delete();
         return response()->json([

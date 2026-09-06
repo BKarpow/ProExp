@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\Models\ServiceStorage;
+use Illuminate\Support\Facades\Auth;
 
 trait ServiceHandler
 {
@@ -32,6 +33,11 @@ trait ServiceHandler
             $this->setItem($this->keyUniqFlag, $d);
             return true;
         } else return false;
+    }
+
+    public function getHomeViewPage():string
+    {
+        return (Auth::user()->isManager()) ? 'biz.warehouse' : 'exp.index';
     }
 
 }

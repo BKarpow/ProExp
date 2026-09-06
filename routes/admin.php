@@ -22,6 +22,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/cache/clear', [AdminController::class, 'clearConfigCache'])->name('admin.cache.clear');
     Route::get('/optios', [AdminController::class, 'optionsPage'])->name('admin.options');
 
+    Route::get('/user/set/manager', [AdminUserController::class, 'changeRoleUserSetManager'])
+    ->name('admin.user.set.manager');
+
     Route::get('/test-mail', function () {
     Artisan::call('config:clear');
     try {

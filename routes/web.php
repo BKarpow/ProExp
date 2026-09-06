@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\InfoApiController;
 
 
+
 // Route::get('/test-ssl', function () {
 //     try {
 //         $response = Http::get('https://google.com');
@@ -68,10 +69,11 @@ Auth::routes();
 
 Route::get('/telegram-bind', [TelegramHandlerController::class, 'bind'])->name('telegram.bind');
 
-Route::get('/', [App\Http\Controllers\DateProductController::class, 'index'])->name('index');
-Route::get('/home', [App\Http\Controllers\DateProductController::class, 'index'])->name('home');
+$methodAndClassHome = [App\Http\Controllers\DateProductController::class, 'index'];
+Route::get('/', $methodAndClassHome)->name('index');
+Route::get('/home', $methodAndClassHome)->name('home');
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
+$methodAndClassHome = null;
 Auth::routes();
 
 Route::get('/shop/add', [App\Http\Controllers\ShopController::class, 'create'])

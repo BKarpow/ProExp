@@ -15,6 +15,7 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
     const ROLE_ADMIN = 77;
+    const ROLE_MANAGER = 22;
     const CONF_KEY_SHOP = 'defaultShop';
     const CONF_KEY_GROUP = 'defaultGroup';
     const CONF_KEY_TG_CHAT_ID = 'telegramChatId';
@@ -96,6 +97,12 @@ class User extends Authenticatable
     {
 
         return (int)$this->role == self::ROLE_ADMIN;
+    }
+
+    public function isManager(): bool
+    {
+
+        return (int)$this->role == self::ROLE_MANAGER;
     }
 
     public function groups()

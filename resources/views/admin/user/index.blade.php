@@ -33,26 +33,18 @@
                                                     <div class="my-2">
                                                         <a href="{{route('date.userExps', ['user' => $item])}}" class="btn btn-primary">
                                                          {{ $item->name }} </a> <!-- /.btn btn-primary -->
+                                                        <div class="my-1">
+                                                            <a href="{{ route('admin.user.set.manager', ['user_id' => $item->id]) }}"
+                                                                class="btn btn-danger">
+                                                                ЗРОБИТИ МЕНЕДЖЕРОМ
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                     <div class="mt-1">
                                                         {{$item->phone}}
                                                     </div>
                                                     <!-- /.mt-1 -->
-                                                    <div class="mt-1">
-                                                        <form action="" method="POST">
-                                                            @csrf
-                                                            
-                                                            <div class="row my-1">
-                                                                <textarea name="msg" rows="10" cols="50" placeholder="Написати в Telegram" class="form-control"></textarea>
-                                                            </div>
-                                                            <!-- /.row -->
 
-                                                            <button class="btn btn-warning">
-                                                                Відправити
-                                                            </button> <!-- /.btn btn-warning -->
-                                                        </form>
-                                                    </div>
-                                                    <!-- /.mt-1 -->
                                                     <div class="mt-1">
                                                         <ul class="list-group">
                                                             <li class="list-group-item">
