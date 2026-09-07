@@ -52,7 +52,7 @@
       </div>
 
       <!-- Динамічні Вкладки для Груп -->
-      <ul class="nav nav-pills mb-3 group-tabs gap-1 flex-nowrap overflow-auto pb-1">
+      <ul class="nav nav-pills mb-3 group-tabs gap-1 flex-wrap overflow-auto pb-1">
         <li class="nav-item">
           <button
             class="nav-item-btn rounded-pill px-3 py-1 border-0 fw-bold small"
@@ -105,7 +105,7 @@
 
                 <!-- Колонка 2: Розміри -->
                 <td class="px-2 py-2 cell-sizes">
-                  <div class="d-flex flex-wrap gap-1 align-items-center">
+                  <div class="d-flex flex-wrap gap-1 ">
                     <template v-if="item.sizes && item.sizes.length">
                       <span
                         v-for="(size, idx) in item.sizes"

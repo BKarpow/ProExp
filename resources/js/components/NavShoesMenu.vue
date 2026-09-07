@@ -1,6 +1,6 @@
 <template>
-<nav class="mb-2 mt-1 d-flex justify-content-center align-items-center">
-    <div class="btn-group">
+<nav class="mb-2 mt-1 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="d-flex justify-content-center align-items-center gep-2">
         <a :href="r('shoes.group')" class="btn btn-primary">
             Групи взуття
         </a>
