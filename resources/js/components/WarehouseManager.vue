@@ -623,7 +623,7 @@ const saveSale = async (updatedSizes) => {
     user_id: props.userId,
   };
   try {
-    await axios.post(`${API_SALES_URL}/`, payload);
+    await axios.post(`${API_SALES_URL}`, payload);
   } catch (err) {
     console.error('Помилка при запису продажу:', err);
   }
