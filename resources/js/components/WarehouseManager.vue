@@ -95,7 +95,7 @@
               <tr v-else v-for="item in filteredItems" :key="item.id">
                 <!-- Колонка 1: Модель та Ціна -->
                 <td class="px-3 py-2 cell-model">
-                  <div class="fw-bold text-truncate" style="max-width: 140px;" :title="item.model?.name">
+                  <div class="fw-bold text-truncate" style="max-width: 240px;" :title="item.model?.name">
                     {{ item.model?.name || '—' }}
                   </div>
                   <small v-if="item.price" class="fw-bold text-success d-block" style="font-size: 0.8rem;">
@@ -438,7 +438,7 @@ import NavShoesMenu from './NavShoesMenu.vue';
 
 const API_URL = '/rapi/warehouse-shoes';
 const API_SALES_URL = '/rapi/sales-shoes';
-const API_MODELS_URL = '/rapi/models-shoes';
+const API_MODELS_URL = '/rapi/shoes/models';
 
 const props = defineProps({
   userId: {
